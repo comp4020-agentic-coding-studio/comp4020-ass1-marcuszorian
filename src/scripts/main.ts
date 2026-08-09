@@ -186,6 +186,7 @@ document.addEventListener("DOMContentLoaded", () => {
     camera = initialCamera();
     applyCamera(svgEl, camera);
     render();
+    svgEl.querySelector<SVGElement>('[tabindex="0"]')?.focus();
 
     const level = currentLevel(state);
     const types = [...new Set(level.nodes.map((n) => n.type))];
