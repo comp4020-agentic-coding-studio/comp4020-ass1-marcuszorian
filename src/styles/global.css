@@ -331,6 +331,16 @@ a {
   vertical-align: middle;
 }
 
+.legend-packet-request {
+  background: var(--color-ink);
+  border: 1px solid var(--color-ink);
+}
+
+.legend-packet-response {
+  background: var(--color-surface);
+  border: 1px solid var(--color-ink);
+}
+
 .legend-link-active {
   background: var(--color-active);
 }
@@ -510,8 +520,22 @@ a {
   fill: #8e44ad;
 }
 
+/*
+ * Traffic deliberately uses no device hue — an amber packet read as another
+ * load balancer, a green one as a server. Instead the two are inverses of each
+ * other: dark dot with a light ring going out, light dot with a dark ring
+ * coming back. Each stays legible over any node it happens to be crossing.
+ */
 .packet {
-  fill: #f1c40f;
+  stroke-width: 0.5;
+}
+
+.packet-request {
+  fill: var(--color-ink);
+  stroke: var(--color-surface);
+}
+
+.packet-response {
+  fill: var(--color-surface);
   stroke: var(--color-ink);
-  stroke-width: 0.3;
 }

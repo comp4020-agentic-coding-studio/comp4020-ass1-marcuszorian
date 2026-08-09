@@ -53,8 +53,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const cheapest = found[0];
         const hops = cheapest.path.length - 1;
         statusEl.textContent =
-          `● Connected — ${hops} hop${hops === 1 ? "" : "s"}, ${cheapest.latency}ms ` +
-          `(${found.length} surviving route${found.length === 1 ? "" : "s"})`;
+          `● Connected — ${hops} hop${hops === 1 ? "" : "s"}, ${cheapest.latency}ms each way ` +
+          `(${cheapest.latency * 2}ms round trip, ` +
+          `${found.length} surviving route${found.length === 1 ? "" : "s"})`;
       } else {
         statusEl.textContent = "● Disconnected — no surviving route to any server";
       }

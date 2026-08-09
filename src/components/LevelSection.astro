@@ -102,6 +102,15 @@ const deviceTypes = [...new Set(level.nodes.map((node) => node.type))];
       </ul>
     </div>
     <div>
+      <p class="legend-heading">Traffic</p>
+      <ul class="legend-list">
+        <li><span class="legend-swatch legend-packet-request"></span>Request, out to a server</li>
+        <li>
+          <span class="legend-swatch legend-packet-response"></span>Response, back the same way
+        </li>
+      </ul>
+    </div>
+    <div>
       <p class="legend-heading">Devices in this level</p>
       <ul class="legend-list">
         {

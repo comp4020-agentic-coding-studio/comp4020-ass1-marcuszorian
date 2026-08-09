@@ -2,7 +2,8 @@ import type { Level, LevelNode } from "../data/levels";
 import type { FocusTarget } from "../lib/focus";
 
 const NODE_RADIUS = 4;
-const HOP_DURATION_MS = 900;
+/** Per hop, in one direction — a full round trip is twice this per hop. */
+const HOP_DURATION_MS = 700;
 
 /**
  * Keyed per diagram: every level on the page renders into its own <svg>, and a
@@ -124,33 +125,83 @@ export function renderDiagram(
   }
 
   if (cheapestPath && cheapestPath.length > 1) {
-    const packet = svgEl("circle");
-    packet.setAttribute("class", "packet");
-    packet.setAttribute("r", "1.4");
-    svg.append(packet);
-    animatePacket(svg, packet, cheapestPath.map((id) => nodePosition(level, id)));
+    const outbound = cheapestPath.map((id) => nodePosition(level, id));
+    animatePackets(
+      svg,
+      [
+        { el: appendPacket(svg, "packet-request"), waypoints: outbound, from: 0, to: 0.5 },
+        // Nothing comes back until something has arrived, so the response only
+        // sets off over the second half of the cycle — over the same links,
+        // through the same devices in reverse. A physical link carries traffic
+        // both ways; routing it any other way would invent a path the level
+        // doesn't have.
+        {
+          el: appendPacket(svg, "packet-response"),
+          waypoints: [...outbound].reverse(),
+          from: 0.5,
+          to: 1,
+        },
+      ],
+      2 * HOP_DURATION_MS * (outbound.length - 1),
+    );
   }
 }
 
-function animatePacket(
-  svg: SVGSVGElement,
-  packet: SVGCircleElement,
-  waypoints: LevelNode[],
-): void {
-  const totalDuration = HOP_DURATION_MS * (waypoints.length - 1);
+type Packet = {
+  el: SVGCircleElement;
+  waypoints: LevelNode[];
+  /** The slice of the round trip this packet is in flight for, as 0-1 fractions. */
+  from: number;
+  to: number;
+};
+
+function appendPacket(svg: SVGSVGElement, modifier: string): SVGCircleElement {
+  const packet = svgEl("circle");
+  packet.setAttribute("class", `packet ${modifier}`);
+  packet.setAttribute("r", "1.4");
+  svg.append(packet);
+  return packet;
+}
+
+function placePacket(packet: Packet, progress: number): void {
+  const hops = packet.waypoints.length - 1;
+  const position = progress * hops;
+  const hop = Math.min(Math.floor(position), hops - 1);
+  const withinHop = position - hop;
+  const from = packet.waypoints[hop];
+  const to = packet.waypoints[hop + 1];
+  packet.el.setAttribute("cx", String(from.x + (to.x - from.x) * withinHop));
+  packet.el.setAttribute("cy", String(from.y + (to.y - from.y) * withinHop));
+}
+
+function prefersReducedMotion(): boolean {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function animatePackets(svg: SVGSVGElement, packets: Packet[], duration: number): void {
+  if (prefersReducedMotion()) {
+    // A still frame of the same moment the animation makes: the request has
+    // just about landed, and the answer is already on its way back.
+    for (const packet of packets) {
+      placePacket(packet, packet.from === 0 ? 0.9 : 0.4);
+    }
+    return;
+  }
+
   let start: number | null = null;
 
   function tick(now: number) {
     if (start === null) {
       start = now;
     }
-    const elapsed = (now - start) % totalDuration;
-    const hop = Math.floor(elapsed / HOP_DURATION_MS);
-    const hopProgress = (elapsed % HOP_DURATION_MS) / HOP_DURATION_MS;
-    const from = waypoints[hop];
-    const to = waypoints[hop + 1] ?? from;
-    packet.setAttribute("cx", String(from.x + (to.x - from.x) * hopProgress));
-    packet.setAttribute("cy", String(from.y + (to.y - from.y) * hopProgress));
+    const cycle = ((now - start) % duration) / duration;
+    for (const packet of packets) {
+      const inFlight = cycle >= packet.from && cycle < packet.to;
+      packet.el.style.display = inFlight ? "" : "none";
+      if (inFlight) {
+        placePacket(packet, (cycle - packet.from) / (packet.to - packet.from));
+      }
+    }
     animationFrames.set(svg, requestAnimationFrame(tick));
   }
 
