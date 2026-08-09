@@ -42,20 +42,22 @@ describe("levels data", () => {
     }
   });
 
-  it("keeps source and destination inside the level's own graph", () => {
+  it("keeps source and every destination inside the level's own graph", () => {
     for (const level of levels) {
       const nodeIds = new Set(level.nodes.map((n) => n.id));
       expect(nodeIds.has(level.source), `level ${level.id}: source "${level.source}" isn't a node`).toBe(true);
-      expect(nodeIds.has(level.destination), `level ${level.id}: destination "${level.destination}" isn't a node`).toBe(true);
+      for (const destination of level.destinations) {
+        expect(nodeIds.has(destination), `level ${level.id}: destination "${destination}" isn't a node`).toBe(true);
+      }
     }
   });
 
   it("starts every level fully connected, before any link is broken", () => {
     for (const level of levels) {
-      const found = routes(level, level.source, level.destination, new Set());
+      const found = routes(level, level.source, level.destinations, new Set());
       expect(
         found.length,
-        `level ${level.id} has no path from ${level.source} to ${level.destination} with nothing broken`,
+        `level ${level.id} has no path from ${level.source} to any of [${level.destinations.join(", ")}] with nothing broken`,
       ).toBeGreaterThan(0);
     }
   });

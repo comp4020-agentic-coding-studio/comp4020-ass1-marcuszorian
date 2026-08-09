@@ -28,5 +28,5 @@ export function currentLevel(state: AppState): Level {
 
 export function currentRoutes(state: AppState): Route[] {
   const level = currentLevel(state);
-  return routes(level, level.source, level.destination, state.broken);
+  return routes(level, level.source, level.destinations, state.broken);
 }

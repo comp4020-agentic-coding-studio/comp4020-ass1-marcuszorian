@@ -65,7 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function updateStatusBar(found: Route[], connected: boolean): void {
     if (!connected) {
-      statusBarEl.textContent = "● Disconnected — no surviving route";
+      statusBarEl.textContent = "● Disconnected — no surviving route to any server";
       return;
     }
     const cheapest = found[0];
@@ -98,7 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function applyToggle(linkId: string): void {
     state.broken = toggleLink(state.broken, linkId);
     const level = currentLevel(state);
-    const connected = routes(level, level.source, level.destination, state.broken).length > 0;
+    const connected = routes(level, level.source, level.destinations, state.broken).length > 0;
     state.progress = recordBreak(state.progress, level.id, connected);
     saveProgress(state.progress);
 

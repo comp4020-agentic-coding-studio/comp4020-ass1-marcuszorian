@@ -35,7 +35,7 @@ const diamond = {
 
 describe("routes", () => {
   it("returns every surviving path, cheapest first, when nothing is broken", () => {
-    const found = routes(diamond, "A", "D", new Set());
+    const found = routes(diamond, "A", ["D"], new Set());
     expect(found.map((r) => r.path)).toEqual([
       ["A", "D"],
       ["A", "B", "D"],
@@ -45,13 +45,13 @@ describe("routes", () => {
   });
 
   it("reroutes onto a more expensive surviving path when the cheapest breaks", () => {
-    const found = routes(diamond, "A", "D", new Set(["direct"]));
+    const found = routes(diamond, "A", ["D"], new Set(["direct"]));
     expect(found[0].path).toEqual(["A", "B", "D"]);
     expect(found[0].latency).toBe(20);
   });
 
   it("disconnects source from destination once every path is broken", () => {
-    const found = routes(diamond, "A", "D", new Set(["direct", "A-B", "A-C"]));
+    const found = routes(diamond, "A", ["D"], new Set(["direct", "A-B", "A-C"]));
     expect(found).toEqual([]);
   });
 });
@@ -69,6 +69,6 @@ describe("toggleLink", () => {
 
   it("repair restores the routes that were available before the break", () => {
     const broken = toggleLink(toggleLink(new Set(), "direct"), "direct");
-    expect(routes(diamond, "A", "D", broken)[0].path).toEqual(["A", "D"]);
+    expect(routes(diamond, "A", ["D"], broken)[0].path).toEqual(["A", "D"]);
   });
 });

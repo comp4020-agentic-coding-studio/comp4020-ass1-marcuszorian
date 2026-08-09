@@ -189,6 +189,10 @@ a {
   font-weight: 600;
 }
 
+.level-complete-banner[hidden] {
+  display: none;
+}
+
 .level-complete-banner {
   display: flex;
   align-items: center;

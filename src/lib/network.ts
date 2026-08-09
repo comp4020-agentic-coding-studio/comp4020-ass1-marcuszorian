@@ -17,13 +17,13 @@ export type Route = {
 export function routes(
   graph: Graph,
   source: string,
-  destination: string,
+  destinations: string[],
   broken: Set<string>,
 ): Route[] {
   const found: Route[] = [];
 
   function walk(current: string, path: string[], latency: number) {
-    if (current === destination) {
+    if (destinations.includes(current)) {
       found.push({ path, latency });
       return;
     }
