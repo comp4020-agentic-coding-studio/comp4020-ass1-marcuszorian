@@ -1,52 +1,57 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import Header from "../components/Header.astro";
-import LevelNav from "../components/LevelNav.astro";
-import StatusBar from "../components/StatusBar.astro";
-import LevelCompleteBanner from "../components/LevelCompleteBanner.astro";
-import Legend from "../components/Legend.astro";
-import ResetButton from "../components/ResetButton.astro";
+import SectionNav from "../components/SectionNav.astro";
+import LevelSection from "../components/LevelSection.astro";
 import SettingsDialog from "../components/SettingsDialog.astro";
-import DeviceIntroDialog from "../components/DeviceIntroDialog.astro";
+import { levels, type NodeType } from "../data/levels";
+
+// Each device type is introduced once, above the first level that uses it —
+// which is what the pop-up hints used to do, except now it stays on the page.
+const seen = new Set<NodeType>();
+const sections = levels.map((level, index) => {
+  const newDevices = [...new Set(level.nodes.map((node) => node.type))].filter(
+    (type) => !seen.has(type),
+  );
+  for (const type of newDevices) {
+    seen.add(type);
+  }
+  const nextLevel = levels[index + 1];
+  return {
+    level,
+    newDevices,
+    next: nextLevel ? { id: nextLevel.id, title: nextLevel.title } : null,
+  };
+});
 ---
 
 <Layout title="Can You Break the Internet?">
   <Header />
+  <SectionNav />
 
   <main>
-    <LevelNav />
+    <section id="intro" class="intro">
+      <p class="intro-lead">
+        "The internet is down" is almost never true. It's built to survive damage: when a link
+        fails, traffic takes another way round, and you rarely notice.
+      </p>
+      <p>
+        Every level below is a network you can attack. <strong
+          >Click any link to cut it</strong
+        > — the diagram reroutes live and the status line tells you what's still standing. Keyboard:
+        focus a diagram, use the arrow keys to move between devices and links, and Enter or Space to
+        cut. On a touchscreen you can pinch to zoom and drag with a thumb to move around.
+      </p>
+      <p>
+        A level is complete once you've cut it off entirely — every route to every server gone.
+        Levels get harder as the networks get more like the real thing.
+      </p>
+    </section>
 
-    <div class="diagram-panel">
-      <svg
-        id="network"
-        tabindex="-1"
-        viewBox="0 0 100 60"
-        preserveAspectRatio="xMidYMid meet"
-        role="img"
-        aria-label="Network diagram: select a link to break or repair it"
-      >
-      </svg>
-
-      <div class="zoom-controls">
-        <button id="zoom-in" type="button" class="icon-button" aria-label="Zoom in">+</button>
-        <button id="zoom-out" type="button" class="icon-button" aria-label="Zoom out">−</button>
-      </div>
-
-      <div id="tutorial-callout" class="tutorial-callout" role="status" hidden></div>
-    </div>
-
-    <StatusBar />
-    <LevelCompleteBanner />
-
-    <div class="diagram-actions">
-      <ResetButton />
-    </div>
-
-    <Legend />
+    {sections.map((props) => <LevelSection {...props} />)}
   </main>
 
   <SettingsDialog />
-  <DeviceIntroDialog />
 
   <script src="../scripts/main.ts"></script>
 </Layout>

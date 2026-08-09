@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it } from "vitest";
-import { initialProgress, markHintSeen, recordBreak } from "../src/lib/progress";
+import { initialProgress, recordBreak } from "../src/lib/progress";
 import { loadProgress, saveProgress } from "../src/lib/persistence";
 
 // "Persistence is maintained across reload" — the app has no backend, so
@@ -29,12 +29,11 @@ describe("loadProgress", () => {
 describe("saveProgress / loadProgress round trip", () => {
   it("survives a simulated reload", () => {
     let state = recordBreak(initialProgress(), 1, false);
-    state = markHintSeen(state, "device:router");
+    state = recordBreak(state, 3, false);
     saveProgress(state);
 
     const reloaded = loadProgress();
 
-    expect(reloaded.completedLevels).toEqual(new Set([1]));
-    expect(reloaded.hintsSeen).toEqual(new Set(["device:router"]));
+    expect(reloaded.completedLevels).toEqual(new Set([1, 3]));
   });
 });

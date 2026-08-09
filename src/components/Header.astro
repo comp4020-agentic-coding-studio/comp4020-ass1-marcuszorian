@@ -3,7 +3,19 @@ import { levels } from "../data/levels";
 ---
 
 <header class="app-header">
-  <h1>Can You Break the Internet?</h1>
+  <div class="app-header-start">
+    <button
+      id="nav-toggle"
+      type="button"
+      class="icon-button"
+      aria-label="Open topics menu"
+      aria-expanded="false"
+      aria-controls="section-nav"
+    >
+      ☰
+    </button>
+    <h1>Can You Break the Internet?</h1>
+  </div>
   <div class="app-header-actions">
     <span id="level-counter" class="level-counter">✓ 0/{levels.length}</span>
     <button id="settings-button" type="button" class="icon-button" aria-label="Settings">

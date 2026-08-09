@@ -34,13 +34,23 @@ a {
 }
 
 .app-header {
+  position: sticky;
+  top: 0;
+  z-index: 3;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: 1rem 1.5rem;
+  padding: 0.75rem 1.5rem;
   background: var(--color-surface);
   border-bottom: 1px solid var(--color-border);
+}
+
+.app-header-start {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
 }
 
 .app-header h1 {
@@ -73,6 +83,9 @@ a {
 }
 
 .button {
+  display: inline-block;
+  color: inherit;
+  text-decoration: none;
   padding: 0.5rem 1rem;
   border-radius: 0.4rem;
   border: 1px solid var(--color-border);
@@ -90,56 +103,146 @@ a {
   border-color: var(--color-danger);
 }
 
-.level-nav {
-  margin: 1rem 0 0.75rem;
+.section-nav[hidden],
+.nav-scrim[hidden] {
+  display: none;
 }
 
-.level-tabs {
+.section-nav {
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 5;
+  width: min(20rem, 85vw);
+  padding: 1.25rem;
+  overflow-y: auto;
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+  box-shadow: 2px 0 16px rgb(0 0 0 / 15%);
+}
+
+.section-nav-heading {
+  margin: 0 0 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.8rem;
+  color: var(--color-muted);
+}
+
+.section-nav-list {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  flex-direction: column;
+  gap: 0.25rem;
   padding: 0;
   margin: 0;
   list-style: none;
 }
 
-.level-tab {
-  padding: 0.5rem 0.9rem;
-  border-radius: 999px;
-  border: 1px solid var(--color-border);
-  background: var(--color-surface);
-  cursor: pointer;
+.section-nav-link {
+  display: block;
+  padding: 0.5rem 0.6rem;
+  border-radius: 0.4rem;
+  color: var(--color-ink);
+  text-decoration: none;
 }
 
-.level-tab.is-current {
-  border-color: var(--color-accent);
-  color: var(--color-accent);
+.section-nav-link:hover,
+.section-nav-link:focus-visible {
+  background: var(--color-bg);
+}
+
+.section-nav-number {
+  display: block;
+  font-size: 0.75rem;
   font-weight: 600;
+  color: var(--color-muted);
 }
 
-.level-tab.is-complete::after {
+.section-nav-link.is-complete .section-nav-title::after {
   content: " ✓";
+  color: var(--color-active);
 }
 
-.level-pager {
-  display: none;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
+.nav-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 4;
+  background: rgb(0 0 0 / 35%);
 }
 
-.level-pager-label {
+.intro {
+  max-width: 44rem;
+  margin: 1.5rem 0 2.5rem;
+  scroll-margin-top: 6rem;
+}
+
+.intro-lead {
+  font-size: 1.15rem;
   font-weight: 600;
 }
 
-@media (width <= 600px) {
-  .level-tabs {
-    display: none;
-  }
+.level-section {
+  padding-top: 2rem;
+  margin-bottom: 3rem;
+  border-top: 1px solid var(--color-border);
 
-  .level-pager {
-    display: flex;
-  }
+  /* Clears the sticky header, which is two lines tall on a phone. */
+  scroll-margin-top: 5.5rem;
+}
+
+.level-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.5rem;
+}
+
+.level-number {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-muted);
+}
+
+.level-description {
+  max-width: 44rem;
+  margin: 0 0 1rem;
+}
+
+.device-intro {
+  margin: 0 0 1rem;
+}
+
+.device-intro-heading {
+  margin: 0 0 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-muted);
+}
+
+.device-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 0.75rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.device-card {
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  background: var(--color-surface);
+}
+
+.device-card-text {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.9rem;
+  color: var(--color-muted);
 }
 
 .diagram-panel {
@@ -150,7 +253,7 @@ a {
   overflow: hidden;
 }
 
-#network {
+.network {
   display: block;
   width: 100%;
   height: min(50vh, 26rem);
@@ -164,24 +267,6 @@ a {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
-}
-
-.tutorial-callout {
-  position: absolute;
-  max-width: min(20rem, calc(100% - 1.5rem));
-  padding: 0.75rem 1rem;
-  border-radius: 0.5rem;
-  background: var(--color-ink);
-  color: var(--color-surface);
-  box-shadow: 0 4px 14px rgb(0 0 0 / 25%);
-}
-
-.tutorial-callout p {
-  margin: 0 0 0.5rem;
-}
-
-.tutorial-callout .button {
-  background: var(--color-surface);
 }
 
 .status-bar {
@@ -298,30 +383,17 @@ a {
   background: rgb(0 0 0 / 45%);
 }
 
-.settings-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin: 1rem 0;
-}
-
-.device-intro-body {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin: 1rem 0;
-}
-
-.device-hint h3 {
-  margin: 0 0 0.25rem;
-}
-
-.device-hint p {
-  margin: 0;
+.settings-note {
   color: var(--color-muted);
+  font-size: 0.9rem;
 }
 
 @media (width <= 600px) {
+  /* The header is sticky, so every rem it grows is a rem off every diagram. */
+  .app-header h1 {
+    font-size: 1rem;
+  }
+
   .dialog {
     position: fixed;
     inset: auto 0 0;
@@ -370,12 +442,23 @@ a {
   fill: var(--color-broken);
 }
 
+/*
+ * The focus ring goes on the line itself, not the <g>: a default outline round
+ * a group's bounding box draws a big black rectangle across the diagram. The
+ * hit line sits below the visible one, so colouring it makes an accent halo
+ * while the link keeps its own active/broken colour.
+ */
+.link:focus-visible {
+  outline: none;
+}
+
 .link:focus-visible .link-visible {
   stroke-width: 1.6;
 }
 
 .link:focus-visible .link-hit {
-  outline: none;
+  stroke: var(--color-accent);
+  stroke-width: 3.2;
 }
 
 .node circle {

@@ -1,0 +1,24 @@
+---
+import { levels } from "../data/levels";
+---
+
+<nav id="section-nav" class="section-nav" aria-label="Topics" hidden>
+  <p class="section-nav-heading">Topics</p>
+  <ul class="section-nav-list">
+    <li>
+      <a class="section-nav-link" href="#intro">Start here</a>
+    </li>
+    {
+      levels.map((level) => (
+        <li>
+          <a class="section-nav-link" href={`#level-${level.id}`} data-nav-level={level.id}>
+            <span class="section-nav-number">Level {level.id}</span>
+            <span class="section-nav-title">{level.title}</span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</nav>
+
+<div id="nav-scrim" class="nav-scrim" hidden></div>

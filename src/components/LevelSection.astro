@@ -1,0 +1,118 @@
+---
+import type { Level, NodeType } from "../data/levels";
+import { deviceHints } from "../data/deviceHints";
+
+type Props = {
+  level: Level;
+  /** Device types this level is the first to use, introduced above the diagram. */
+  newDevices: NodeType[];
+  /** Where the completion banner points next, or null on the last level. */
+  next: { id: number; title: string } | null;
+};
+
+const { level, newDevices, next } = Astro.props;
+const deviceTypes = [...new Set(level.nodes.map((node) => node.type))];
+---
+
+<section
+  id={`level-${level.id}`}
+  class="level-section"
+  data-level-id={level.id}
+  aria-labelledby={`level-${level.id}-title`}
+>
+  <h2 id={`level-${level.id}-title`} class="level-title">
+    <span class="level-number">Level {level.id}</span>
+    {level.title}
+  </h2>
+
+  <p class="level-description">{level.description}</p>
+
+  {
+    newDevices.length > 0 && (
+      <div class="device-intro">
+        <h3 class="device-intro-heading">New here</h3>
+        <ul class="device-cards">
+          {newDevices.map((type) => (
+            <li class="device-card">
+              <span class={`legend-swatch legend-device-${type}`} />
+              <strong>{deviceHints[type].title}</strong>
+              <span class="device-card-text">{deviceHints[type].description}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )
+  }
+
+  <div class="diagram-panel">
+    <svg
+      class="network"
+      data-network
+      tabindex="-1"
+      viewBox="0 0 100 60"
+      preserveAspectRatio="xMidYMid meet"
+      role="img"
+      aria-label={`Level ${level.id} network diagram: select a link to break or repair it`}
+    >
+    </svg>
+
+    <div class="zoom-controls">
+      <button
+        type="button"
+        class="icon-button"
+        data-zoom-in
+        aria-label={`Zoom in on level ${level.id}`}>+</button
+      >
+      <button
+        type="button"
+        class="icon-button"
+        data-zoom-out
+        aria-label={`Zoom out of level ${level.id}`}>−</button
+      >
+    </div>
+  </div>
+
+  <p class="status-bar" data-status role="status" aria-live="polite"></p>
+
+  <div class="level-complete-banner" data-complete-banner hidden>
+    <span data-complete-message></span>
+    {
+      next ? (
+        <a class="button" href={`#level-${next.id}`}>
+          Next: {next.title} →
+        </a>
+      ) : (
+        <a class="button" href="#intro">
+          Back to the top ↑
+        </a>
+      )
+    }
+  </div>
+
+  <div class="diagram-actions">
+    <button type="button" class="button" data-reset-level>Reset this level</button>
+  </div>
+
+  <div class="legend">
+    <div>
+      <p class="legend-heading">Links</p>
+      <ul class="legend-list">
+        <li><span class="legend-swatch legend-link-active"></span>Working link</li>
+        <li><span class="legend-swatch legend-link-broken"></span>Broken link</li>
+      </ul>
+    </div>
+    <div>
+      <p class="legend-heading">Devices in this level</p>
+      <ul class="legend-list">
+        {
+          deviceTypes.map((type) => (
+            <li>
+              <span class={`legend-swatch legend-device-${type}`} />
+              {deviceHints[type].title}
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</section>

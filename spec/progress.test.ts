@@ -2,22 +2,17 @@ import { describe, expect, it } from "vitest";
 import {
   deserializeProgress,
   initialProgress,
-  markHintSeen,
   recordBreak,
   resetProgress,
   serializeProgress,
-  setHintsEnabled,
-  shouldShowHint,
 } from "../src/lib/progress";
 
 // Completion counter: "completion should be once the network has been
 // broken" — a level flips to complete the first time it's fully
 // disconnected, and stays complete even if you Reset Level and reconnect
-// it afterward. Hints (device-intro cards and tutorial callouts, treated as
-// one category) show once per id, unless turned off entirely. Settings'
-// "Reset Progress" clears the counter and re-shows every hint — but leaves
-// the hints-enabled preference itself alone, since that's a standing
-// choice, not progress.
+// it afterward. Settings' "Reset Progress" clears the counter back to
+// nothing, which is all the progress model tracks now that every level
+// lives on one scrolling page and explains itself in prose.
 
 describe("recordBreak", () => {
   it("does not complete a level that's still connected", () => {
@@ -37,47 +32,26 @@ describe("recordBreak", () => {
   });
 });
 
-describe("hints", () => {
-  it("shows an unseen hint when hints are enabled", () => {
-    expect(shouldShowHint(initialProgress(), "device:router")).toBe(true);
-  });
-
-  it("does not show a hint that's already been seen", () => {
-    const state = markHintSeen(initialProgress(), "device:router");
-    expect(shouldShowHint(state, "device:router")).toBe(false);
-  });
-
-  it("hides every hint once hints are disabled, seen or not", () => {
-    const state = setHintsEnabled(initialProgress(), false);
-    expect(shouldShowHint(state, "device:router")).toBe(false);
-  });
-});
-
 describe("resetProgress", () => {
-  it("clears completed levels and seen hints, but leaves hintsEnabled alone", () => {
+  it("clears every completed level", () => {
     let state = recordBreak(initialProgress(), 1, false);
-    state = markHintSeen(state, "device:router");
-    state = setHintsEnabled(state, false);
+    state = recordBreak(state, 3, false);
 
-    const reset = resetProgress(state);
-
-    expect(reset.completedLevels.size).toBe(0);
-    expect(reset.hintsSeen.size).toBe(0);
-    expect(reset.hintsEnabled).toBe(false);
+    expect(resetProgress().completedLevels.size).toBe(0);
   });
 });
 
 describe("serialization", () => {
-  it("round-trips completed levels and seen hints through JSON", () => {
+  it("round-trips completed levels through JSON", () => {
     let state = recordBreak(initialProgress(), 1, false);
     state = recordBreak(state, 3, false);
-    state = markHintSeen(state, "device:router");
-    state = setHintsEnabled(state, false);
 
     const restored = deserializeProgress(serializeProgress(state));
 
     expect(restored.completedLevels).toEqual(new Set([1, 3]));
-    expect(restored.hintsSeen).toEqual(new Set(["device:router"]));
-    expect(restored.hintsEnabled).toBe(false);
+  });
+
+  it("tolerates a payload saved before this shape existed", () => {
+    expect(deserializeProgress("{}").completedLevels.size).toBe(0);
   });
 });

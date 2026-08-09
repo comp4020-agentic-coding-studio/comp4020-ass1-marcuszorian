@@ -1,32 +1,29 @@
-import { levels, type Level } from "../data/levels";
+import type { Level } from "../data/levels";
 import { routes, type Route } from "../lib/network";
-import { loadProgress } from "../lib/persistence";
-import type { ProgressState } from "../lib/progress";
 import type { FocusTarget } from "../lib/focus";
+import { initialCamera, type Camera } from "./zoom";
 
-export type AppState = {
-  levelIndex: number;
+/**
+ * Every level is on the page at once, so each one owns its own breakage,
+ * keyboard focus and camera. Only the completion count is shared, and that
+ * lives in ProgressState rather than here.
+ */
+export type LevelState = {
+  level: Level;
   broken: Set<string>;
-  progress: ProgressState;
   focus: FocusTarget | null;
-  tutorialStepIndex: number | null;
+  camera: Camera;
 };
 
-export function createInitialState(): AppState {
+export function createLevelState(level: Level): LevelState {
   return {
-    levelIndex: 0,
+    level,
     broken: new Set(),
-    progress: loadProgress(),
     focus: null,
-    tutorialStepIndex: null,
+    camera: initialCamera(),
   };
 }
 
-export function currentLevel(state: AppState): Level {
-  return levels[state.levelIndex];
-}
-
-export function currentRoutes(state: AppState): Route[] {
-  const level = currentLevel(state);
-  return routes(level, level.source, level.destinations, state.broken);
+export function levelRoutes(state: LevelState): Route[] {
+  return routes(state.level, state.level.source, state.level.destinations, state.broken);
 }

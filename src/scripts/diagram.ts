@@ -4,7 +4,11 @@ import type { FocusTarget } from "../lib/focus";
 const NODE_RADIUS = 4;
 const HOP_DURATION_MS = 900;
 
-let animationFrame: number | null = null;
+/**
+ * Keyed per diagram: every level on the page renders into its own <svg>, and a
+ * shared handle would mean each render cancelled the other diagrams' packets.
+ */
+const animationFrames = new WeakMap<SVGSVGElement, number>();
 
 function nodePosition(level: Level, id: string): LevelNode {
   const node = level.nodes.find((n) => n.id === id);
@@ -48,9 +52,10 @@ export function renderDiagram(
   cheapestPath: string[] | null,
   focus: FocusTarget | null,
 ): void {
-  if (animationFrame !== null) {
-    cancelAnimationFrame(animationFrame);
-    animationFrame = null;
+  const pending = animationFrames.get(svg);
+  if (pending !== undefined) {
+    cancelAnimationFrame(pending);
+    animationFrames.delete(svg);
   }
   svg.replaceChildren();
 
@@ -123,11 +128,15 @@ export function renderDiagram(
     packet.setAttribute("class", "packet");
     packet.setAttribute("r", "1.4");
     svg.append(packet);
-    animatePacket(packet, cheapestPath.map((id) => nodePosition(level, id)));
+    animatePacket(svg, packet, cheapestPath.map((id) => nodePosition(level, id)));
   }
 }
 
-function animatePacket(packet: SVGCircleElement, waypoints: LevelNode[]): void {
+function animatePacket(
+  svg: SVGSVGElement,
+  packet: SVGCircleElement,
+  waypoints: LevelNode[],
+): void {
   const totalDuration = HOP_DURATION_MS * (waypoints.length - 1);
   let start: number | null = null;
 
@@ -142,8 +151,8 @@ function animatePacket(packet: SVGCircleElement, waypoints: LevelNode[]): void {
     const to = waypoints[hop + 1] ?? from;
     packet.setAttribute("cx", String(from.x + (to.x - from.x) * hopProgress));
     packet.setAttribute("cy", String(from.y + (to.y - from.y) * hopProgress));
-    animationFrame = requestAnimationFrame(tick);
+    animationFrames.set(svg, requestAnimationFrame(tick));
   }
 
-  animationFrame = requestAnimationFrame(tick);
+  animationFrames.set(svg, requestAnimationFrame(tick));
 }

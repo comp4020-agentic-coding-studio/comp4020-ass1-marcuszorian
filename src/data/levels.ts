@@ -26,9 +26,10 @@ export type LevelEdge = {
 export type Level = {
   id: number;
   title: string;
+  /** Shown above the diagram, in place of the old pop-up hints. */
+  description: string;
   source: string;
   destinations: string[];
-  isTutorial?: boolean;
   nodes: LevelNode[];
   edges: LevelEdge[];
 };
@@ -37,9 +38,12 @@ export const levels: Level[] = [
   {
     id: 1,
     title: "How the Internet Reroutes",
+    description:
+      "Every request starts at a client and ends at a server. In between, routers decide which link " +
+      "to send it down next. There is more than one way through, so breaking a link doesn't stop the " +
+      "traffic — it just sends it the long way round. Click any link to cut it and watch the route change.",
     source: "you",
     destinations: ["server"],
-    isTutorial: true,
     nodes: [
       { id: "you", type: "client", x: 8, y: 30 },
       { id: "router-a", type: "router", x: 45, y: 12 },
@@ -47,7 +51,6 @@ export const levels: Level[] = [
       { id: "server", type: "server", x: 92, y: 30 },
     ],
     edges: [
-      { id: "direct", from: "you", to: "server", latency: 5 },
       { id: "to-a", from: "you", to: "router-a", latency: 8 },
       { id: "a-server", from: "router-a", to: "server", latency: 12 },
       { id: "to-b", from: "you", to: "router-b", latency: 35 },
@@ -57,6 +60,10 @@ export const levels: Level[] = [
   {
     id: 2,
     title: "Bigger Office",
+    description:
+      "Once a site has more than a couple of machines, something has to fan traffic out to them. " +
+      "A switch links everything on one site together and hands traffic off to whichever router " +
+      "still has a working path out.",
     source: "laptop",
     destinations: ["server"],
     nodes: [
@@ -68,7 +75,6 @@ export const levels: Level[] = [
     ],
     edges: [
       { id: "laptop-switch", from: "laptop", to: "switch-1", latency: 5 },
-      { id: "switch-direct", from: "switch-1", to: "server", latency: 12 },
       { id: "switch-a", from: "switch-1", to: "router-a", latency: 8 },
       { id: "a-server", from: "router-a", to: "server", latency: 10 },
       { id: "switch-b", from: "switch-1", to: "router-b", latency: 20 },
@@ -78,6 +84,10 @@ export const levels: Level[] = [
   {
     id: 3,
     title: "Small ISP",
+    description:
+      "Real services don't run on one machine. A load balancer sits in front of several servers and " +
+      "spreads requests across them, so losing one server doesn't take the service down. Everything " +
+      "reaches the servers through it — cut one of its outgoing links and the other server absorbs the load.",
     source: "client",
     destinations: ["server-a", "server-b"],
     nodes: [
@@ -102,6 +112,10 @@ export const levels: Level[] = [
   {
     id: 4,
     title: "Regional Mesh",
+    description:
+      "CDN edge nodes sit close to you and hold cached copies of what you're asking for, so most " +
+      "requests never travel far. Behind them a mesh of routers reaches servers in more than one " +
+      "place, which means there is rarely a single link whose loss you'd even notice.",
     source: "client",
     destinations: ["server-a", "server-b"],
     nodes: [
@@ -130,6 +144,10 @@ export const levels: Level[] = [
   {
     id: 5,
     title: "The Global Backbone",
+    description:
+      "At global scale a service runs in independent regions. Each region has its own gateway, its " +
+      "own datacenters and its own server, with nothing shared between them. Take out an entire " +
+      "region and the other one still answers — which is why \"the internet is down\" is almost never true.",
     source: "client",
     destinations: ["server-a", "server-b"],
     nodes: [
