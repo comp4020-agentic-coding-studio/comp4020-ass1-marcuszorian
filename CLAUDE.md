@@ -152,6 +152,32 @@ means building legibly is part of building well.
 You don't need a name, a student number, or any identity file in the repo: we
 know whose repo it is. Spend the effort on the work.
 
+## Things learned building C2 (StaticICE redesign)
+
+- **Client-rendered pages have no server-rendered content to assert on.**
+  Everything data-driven here (listings, filters, price history) is rendered
+  by `src/scripts/app.ts` at runtime, so `dist/index.html` only ever contains
+  the static shell. A `spec/*.test.ts` file that inspects `dist/` can check
+  markup and static text, not rendered results. Contracts about the *data*
+  (every listing's total is real, noise listings are flagged not deleted,
+  variants referenced actually exist) belong in a test that imports the data
+  module directly (`spec/data-contracts.test.ts`) rather than one that builds
+  and greps HTML.
+- **Don't bulk-pull product images from Google Images or Wikimedia for a
+  public repo without checking licensing first** --- Wikimedia's GPU category
+  pages are mostly unlicensed video-frame grabs, and Google Images has no
+  reuse guarantee at all. When that's not resolvable quickly, styled
+  text/colour-swatch cards are an honest fallback; don't ship an image whose
+  licence you didn't check.
+- **stylelint wants kebab-case class names and short hex** --- `is-excluded`,
+  not `listing--excluded` (BEM double-dashes fail `selector-class-pattern`);
+  `#fff`, not `#ffffff` (`color-hex-length`).
+- **`agent-browser` isn't installed in this environment.** `google-chrome
+  --headless=new` plus the Chrome DevTools Protocol (Node has a native
+  `WebSocket`, so no extra dependency) is a working substitute for driving
+  clicks and capturing screenshots at both marking viewports before trusting
+  a checks-green build.
+
 ## This file is yours
 
 This CLAUDE.md is a starting point, not a fixed rulebook. As you learn what your
