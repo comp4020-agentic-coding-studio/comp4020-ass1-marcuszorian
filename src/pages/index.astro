@@ -1,20 +1,50 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import Header from "../components/Header.astro";
+import LevelNav from "../components/LevelNav.astro";
+import StatusBar from "../components/StatusBar.astro";
+import Legend from "../components/Legend.astro";
+import ResetButton from "../components/ResetButton.astro";
+import SettingsDialog from "../components/SettingsDialog.astro";
+import DeviceIntroDialog from "../components/DeviceIntroDialog.astro";
 ---
 
-<Layout title="COMP4020 prototype">
-  <header>
-    <nav aria-label="Primary">
-      <a href="./">Home</a>
-    </nav>
-  </header>
+<Layout title="Can You Break the Internet?">
+  <Header />
+
   <main>
-    <h1>COMP4020 prototype</h1>
-    <p data-testid="intro">
-      Replace this with your prototype. This week's brief is on the course
-      website; <code>spec/README.md</code> explains how the checks in this repo
-      relate to it.
-    </p>
+    <LevelNav />
+
+    <div class="diagram-panel">
+      <svg
+        id="network"
+        tabindex="-1"
+        viewBox="0 0 100 60"
+        preserveAspectRatio="xMidYMid meet"
+        role="img"
+        aria-label="Network diagram: select a link to break or repair it"
+      >
+      </svg>
+
+      <div class="zoom-controls">
+        <button id="zoom-in" type="button" class="icon-button" aria-label="Zoom in">+</button>
+        <button id="zoom-out" type="button" class="icon-button" aria-label="Zoom out">−</button>
+      </div>
+
+      <div id="tutorial-callout" class="tutorial-callout" role="status" hidden></div>
+    </div>
+
+    <StatusBar />
+
+    <div class="diagram-actions">
+      <ResetButton />
+    </div>
+
+    <Legend />
   </main>
+
+  <SettingsDialog />
+  <DeviceIntroDialog />
+
   <script src="../scripts/main.ts"></script>
 </Layout>

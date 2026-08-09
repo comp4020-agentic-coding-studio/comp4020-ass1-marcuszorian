@@ -1,0 +1,33 @@
+---
+import { levels } from "../data/levels";
+---
+
+<nav aria-label="Levels" class="level-nav">
+  <ul id="level-tabs" class="level-tabs" role="tablist">
+    {
+      levels.map((level) => (
+        <li>
+          <button
+            type="button"
+            class="level-tab"
+            data-level-id={level.id}
+            role="tab"
+            aria-selected="false"
+          >
+            {level.title}
+          </button>
+        </li>
+      ))
+    }
+  </ul>
+
+  <div class="level-pager">
+    <button id="level-prev" type="button" class="icon-button" aria-label="Previous level">
+      ‹
+    </button>
+    <span id="level-pager-label" class="level-pager-label">Level 1 of {levels.length}</span>
+    <button id="level-next" type="button" class="icon-button" aria-label="Next level">
+      ›
+    </button>
+  </div>
+</nav>
