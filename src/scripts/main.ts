@@ -14,6 +14,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const svgEl = document.querySelector<SVGSVGElement>("#network")!;
   const counterEl = document.querySelector<HTMLElement>("#level-counter")!;
   const statusBarEl = document.querySelector<HTMLElement>("#status-bar")!;
+  const levelCompleteBanner = document.querySelector<HTMLElement>("#level-complete-banner")!;
+  const levelCompleteMessage = document.querySelector<HTMLElement>("#level-complete-message")!;
+  const nextLevelButton = document.querySelector<HTMLButtonElement>("#next-level-button")!;
   const levelTabsEl = document.querySelector<HTMLElement>("#level-tabs")!;
   const levelPagerLabel = document.querySelector<HTMLElement>("#level-pager-label")!;
   const levelPrevButton = document.querySelector<HTMLButtonElement>("#level-prev")!;
@@ -44,6 +47,20 @@ document.addEventListener("DOMContentLoaded", () => {
     updateStatusBar(found, connected);
     updateCounter();
     updateLevelNav(level);
+    updateLevelCompleteBanner(connected);
+  }
+
+  function updateLevelCompleteBanner(connected: boolean): void {
+    if (connected) {
+      levelCompleteBanner.hidden = true;
+      return;
+    }
+    const isLastLevel = state.levelIndex === levels.length - 1;
+    levelCompleteMessage.textContent = isLastLevel
+      ? "Network fully disconnected — you've broken the whole internet."
+      : "Network fully disconnected — nice work.";
+    nextLevelButton.textContent = isLastLevel ? "Back to Level 1" : "Next Level →";
+    levelCompleteBanner.hidden = false;
   }
 
   function updateStatusBar(found: Route[], connected: boolean): void {
@@ -265,6 +282,11 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   levelNextButton.addEventListener("click", () => {
     goToLevel((state.levelIndex + 1) % levels.length);
+  });
+
+  nextLevelButton.addEventListener("click", () => {
+    const isLastLevel = state.levelIndex === levels.length - 1;
+    goToLevel(isLastLevel ? 0 : state.levelIndex + 1);
   });
 
   settingsButton.addEventListener("click", () => {
