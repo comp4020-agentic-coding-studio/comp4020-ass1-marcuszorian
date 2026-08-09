@@ -54,6 +54,23 @@ describe("routes", () => {
     const found = routes(diamond, "A", ["D"], new Set(["direct", "A-B", "A-C"]));
     expect(found).toEqual([]);
   });
+
+  // A link is a cable, so traffic crosses it whichever way it was authored.
+  // The cross-link here is written B->C, and the only way through once B's own
+  // exit is cut is to cross it the other way, C->B.
+  it("crosses a link in either direction, not just the way it was authored", () => {
+    const mesh = {
+      edges: [
+        { id: "A-B", from: "A", to: "B", latency: 10 },
+        { id: "A-C", from: "A", to: "C", latency: 10 },
+        { id: "B-C", from: "B", to: "C", latency: 4 },
+        { id: "B-D", from: "B", to: "D", latency: 12 },
+      ],
+    };
+    const found = routes(mesh, "A", ["D"], new Set(["A-B"]));
+    expect(found.map((r) => r.path)).toEqual([["A", "C", "B", "D"]]);
+    expect(found[0].latency).toBe(26);
+  });
 });
 
 describe("toggleLink", () => {

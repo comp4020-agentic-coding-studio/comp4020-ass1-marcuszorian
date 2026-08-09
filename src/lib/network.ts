@@ -28,10 +28,18 @@ export function routes(
       return;
     }
     for (const edge of graph.edges) {
-      if (edge.from !== current || broken.has(edge.id) || path.includes(edge.to)) {
+      if (broken.has(edge.id)) {
         continue;
       }
-      walk(edge.to, [...path, edge.to], latency + edge.latency);
+      // A link is a physical cable, not a one-way street: `from` and `to` only
+      // say how it was authored. Walking it in one direction only invented
+      // dead ends on the meshed levels, where the way onward is across a link
+      // that happens to point back the way you came.
+      const next = edge.from === current ? edge.to : edge.to === current ? edge.from : null;
+      if (next === null || path.includes(next)) {
+        continue;
+      }
+      walk(next, [...path, next], latency + edge.latency);
     }
   }
 
