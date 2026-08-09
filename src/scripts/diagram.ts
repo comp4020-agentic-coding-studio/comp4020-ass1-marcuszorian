@@ -18,6 +18,18 @@ function svgEl<K extends keyof SVGElementTagNameMap>(tag: K): SVGElementTagNameM
   return document.createElementNS("http://www.w3.org/2000/svg", tag);
 }
 
+const LINK_LABEL_OFFSET = 2.4;
+
+function linkLabelPosition(from: LevelNode, to: LevelNode): [number, number] {
+  const dx = to.x - from.x;
+  const dy = to.y - from.y;
+  const length = Math.hypot(dx, dy) || 1;
+  return [
+    (from.x + to.x) / 2 + (-dy / length) * LINK_LABEL_OFFSET,
+    (from.y + to.y) / 2 + (dx / length) * LINK_LABEL_OFFSET,
+  ];
+}
+
 function isTabbableLink(edgeId: string, focus: FocusTarget | null): boolean {
   return focus !== null && focus.kind === "link" && focus.id === edgeId;
 }
@@ -71,7 +83,15 @@ export function renderDiagram(
     line.setAttribute("y1", String(from.y));
     line.setAttribute("x2", String(to.x));
     line.setAttribute("y2", String(to.y));
-    group.append(hit, line);
+
+    const label = svgEl("text");
+    label.setAttribute("class", "link-label");
+    const [labelX, labelY] = linkLabelPosition(from, to);
+    label.setAttribute("x", String(labelX));
+    label.setAttribute("y", String(labelY));
+    label.textContent = `${edge.latency}ms`;
+
+    group.append(hit, line, label);
 
     svg.append(group);
   }

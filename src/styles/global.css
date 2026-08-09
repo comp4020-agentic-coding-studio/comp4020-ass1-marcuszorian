@@ -322,6 +322,21 @@ a {
   stroke-dasharray: 2 1.5;
 }
 
+.link-label {
+  font-size: 2.2px;
+  text-anchor: middle;
+  fill: var(--color-muted);
+  paint-order: stroke;
+  stroke: var(--color-surface);
+  stroke-width: 2px;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+.link.is-broken .link-label {
+  fill: var(--color-broken);
+}
+
 .link:focus-visible .link-visible {
   stroke-width: 1.6;
 }
