@@ -13,12 +13,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const navToggle = document.querySelector<HTMLButtonElement>("#nav-toggle")!;
   const sectionNav = document.querySelector<HTMLElement>("#section-nav")!;
   const navScrim = document.querySelector<HTMLElement>("#nav-scrim")!;
-  const settingsButton = document.querySelector<HTMLButtonElement>("#settings-button")!;
-  const settingsDialog = document.querySelector<HTMLDialogElement>("#settings-dialog")!;
-  const settingsClose = document.querySelector<HTMLButtonElement>("#settings-close")!;
   const resetProgressButton = document.querySelector<HTMLButtonElement>("#reset-progress")!;
 
   let progress: ProgressState = loadProgress();
+  /** Every level's own "put it back how you found it", for the global reset. */
+  const levelResets: (() => void)[] = [];
 
   function updateChrome(): void {
     counterEl.textContent = `✓ ${progress.completedLevels.size}/${levels.length}`;
@@ -136,12 +135,15 @@ document.addEventListener("DOMContentLoaded", () => {
       },
     });
 
-    resetLevel.addEventListener("click", () => {
+    function restoreLevel(): void {
       state.broken = new Set();
       state.focus = null;
       setCamera(initialCamera());
       render();
-    });
+    }
+
+    resetLevel.addEventListener("click", restoreLevel);
+    levelResets.push(restoreLevel);
 
     applyCamera(svg, state.camera);
     render();
@@ -150,6 +152,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Tracked rather than read back off the element: HTMLElement["hidden"] is
   // boolean | string ("until-found"), which isn't a clean toggle source.
   let navOpen = false;
+  const sidebarLayout = window.matchMedia("(min-width: 60rem)");
 
   function setNavOpen(open: boolean): void {
     navOpen = open;
@@ -165,7 +168,9 @@ document.addEventListener("DOMContentLoaded", () => {
   navToggle.addEventListener("click", () => setNavOpen(!navOpen));
   navScrim.addEventListener("click", () => setNavOpen(false));
   sectionNav.addEventListener("click", (event) => {
-    if ((event.target as Element).closest("a")) setNavOpen(false);
+    if (!sidebarLayout.matches && (event.target as Element).closest("a")) {
+      setNavOpen(false);
+    }
   });
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && navOpen) {
@@ -174,12 +179,31 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  settingsButton.addEventListener("click", () => settingsDialog.showModal());
-  settingsClose.addEventListener("click", () => settingsDialog.close());
+  // Wide enough for a permanent sidebar; below this the same <nav> is a drawer.
+  // The CSS makes the same call, and the attribute is dropped here too so the
+  // sidebar isn't left marked hidden to assistive tech.
+  function syncNavLayout(): void {
+    if (sidebarLayout.matches) {
+      navOpen = false;
+      sectionNav.hidden = false;
+      navScrim.hidden = true;
+      navToggle.setAttribute("aria-expanded", "false");
+    } else {
+      setNavOpen(false);
+    }
+  }
+
+  sidebarLayout.addEventListener("change", syncNavLayout);
+  syncNavLayout();
+
   resetProgressButton.addEventListener("click", () => {
+    // "Reset progress" means the whole thing back to how it shipped: the count
+    // cleared, and every level's links repaired rather than left cut.
     progress = resetProgress();
     saveProgress(progress);
-    settingsDialog.close();
+    for (const restore of levelResets) {
+      restore();
+    }
     updateChrome();
   });
 

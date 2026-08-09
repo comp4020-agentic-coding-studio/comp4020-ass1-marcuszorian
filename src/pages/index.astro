@@ -3,7 +3,6 @@ import Layout from "../layouts/Layout.astro";
 import Header from "../components/Header.astro";
 import SectionNav from "../components/SectionNav.astro";
 import LevelSection from "../components/LevelSection.astro";
-import SettingsDialog from "../components/SettingsDialog.astro";
 import { levels, type NodeType } from "../data/levels";
 
 // Each device type is introduced once, above the first level that uses it —
@@ -56,8 +55,6 @@ const sections = levels.map((level, index) => {
 
     {sections.map((props) => <LevelSection {...props} />)}
   </main>
-
-  <SettingsDialog />
 
   <script src="../scripts/main.ts"></script>
 </Layout>

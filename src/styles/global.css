@@ -170,6 +170,35 @@ a {
   background: rgb(0 0 0 / 35%);
 }
 
+/*
+ * Wide enough to give the topics a column of their own: the same <nav> stops
+ * being a drawer and becomes a permanent sidebar, with the header and content
+ * pushed clear of it by the body's padding. Below this it stays a drawer.
+ */
+@media (width >= 60rem) {
+  body {
+    padding-left: 17rem;
+  }
+
+  .section-nav,
+  .section-nav[hidden] {
+    display: block;
+    top: 0;
+    z-index: 6;
+    width: 17rem;
+    box-shadow: none;
+  }
+
+  .nav-scrim,
+  .nav-scrim[hidden] {
+    display: none;
+  }
+
+  #nav-toggle {
+    display: none;
+  }
+}
+
 .intro {
   max-width: 44rem;
   margin: 1.5rem 0 2.5rem;
@@ -381,36 +410,15 @@ a {
   background: #8e44ad;
 }
 
-.dialog {
-  border: none;
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  max-width: 28rem;
-  width: min(90vw, 28rem);
-}
-
-.dialog::backdrop {
-  background: rgb(0 0 0 / 45%);
-}
-
-.settings-note {
-  color: var(--color-muted);
-  font-size: 0.9rem;
-}
-
 @media (width <= 600px) {
   /* The header is sticky, so every rem it grows is a rem off every diagram. */
   .app-header h1 {
     font-size: 1rem;
   }
 
-  .dialog {
-    position: fixed;
-    inset: auto 0 0;
-    margin: 0;
-    width: 100%;
-    max-width: none;
-    border-radius: 0.75rem 0.75rem 0 0;
+  /* The reset button falls back to its icon and its aria-label. */
+  .reset-label {
+    display: none;
   }
 }
 

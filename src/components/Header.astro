@@ -18,8 +18,13 @@ import { levels } from "../data/levels";
   </div>
   <div class="app-header-actions">
     <span id="level-counter" class="level-counter">✓ 0/{levels.length}</span>
-    <button id="settings-button" type="button" class="icon-button" aria-label="Settings">
-      ⚙
+    <button
+      id="reset-progress"
+      type="button"
+      class="button button-danger"
+      aria-label="Reset progress and repair every level"
+    >
+      ↺ <span class="reset-label">Reset progress</span>
     </button>
   </div>
 </header>
