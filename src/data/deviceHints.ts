@@ -17,4 +17,20 @@ export const deviceHints: Record<NodeType, { title: string; description: string 
     title: "Server",
     description: "The destination — where the request actually gets answered.",
   },
+  "load-balancer": {
+    title: "Load Balancer",
+    description: "Spreads requests across several backend paths instead of sending them all down one.",
+  },
+  "cdn-edge": {
+    title: "CDN Edge",
+    description: "A point of presence close to the client that caches and forwards traffic toward origin servers.",
+  },
+  "region-gateway": {
+    title: "Region Gateway",
+    description: "The entry point into a whole geographic region's infrastructure, fanning out to its datacenters.",
+  },
+  datacenter: {
+    title: "Datacenter",
+    description: "A facility hosting the servers that actually answer requests for its region.",
+  },
 };

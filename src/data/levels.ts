@@ -1,4 +1,12 @@
-export type NodeType = "client" | "router" | "server" | "switch";
+export type NodeType =
+  | "client"
+  | "router"
+  | "server"
+  | "switch"
+  | "load-balancer"
+  | "cdn-edge"
+  | "region-gateway"
+  | "datacenter";
 
 export type LevelNode = {
   id: string;
@@ -77,18 +85,18 @@ export const levels: Level[] = [
       { id: "switch-1", type: "switch", x: 25, y: 30 },
       { id: "router-a", type: "router", x: 48, y: 10 },
       { id: "router-b", type: "router", x: 48, y: 50 },
-      { id: "router-c", type: "router", x: 65, y: 30 },
+      { id: "lb-1", type: "load-balancer", x: 65, y: 30 },
       { id: "server", type: "server", x: 92, y: 30 },
     ],
     edges: [
       { id: "c-sw", from: "client", to: "switch-1", latency: 5 },
       { id: "sw-a", from: "switch-1", to: "router-a", latency: 8 },
       { id: "sw-b", from: "switch-1", to: "router-b", latency: 18 },
-      { id: "sw-c", from: "switch-1", to: "router-c", latency: 10 },
+      { id: "sw-lb", from: "switch-1", to: "lb-1", latency: 10 },
       { id: "a-server", from: "router-a", to: "server", latency: 10 },
       { id: "b-server", from: "router-b", to: "server", latency: 22 },
-      { id: "c-server", from: "router-c", to: "server", latency: 9 },
-      { id: "a-c", from: "router-a", to: "router-c", latency: 4 },
+      { id: "lb-server", from: "lb-1", to: "server", latency: 9 },
+      { id: "a-lb", from: "router-a", to: "lb-1", latency: 4 },
     ],
   },
   {
@@ -98,20 +106,20 @@ export const levels: Level[] = [
     destination: "server",
     nodes: [
       { id: "client", type: "client", x: 8, y: 30 },
-      { id: "switch-a", type: "switch", x: 24, y: 15 },
-      { id: "switch-b", type: "switch", x: 24, y: 45 },
+      { id: "cdn-a", type: "cdn-edge", x: 24, y: 15 },
+      { id: "cdn-b", type: "cdn-edge", x: 24, y: 45 },
       { id: "router-a", type: "router", x: 50, y: 5 },
       { id: "router-b", type: "router", x: 50, y: 30 },
       { id: "router-c", type: "router", x: 50, y: 55 },
       { id: "server", type: "server", x: 92, y: 30 },
     ],
     edges: [
-      { id: "client-switch-a", from: "client", to: "switch-a", latency: 5 },
-      { id: "client-switch-b", from: "client", to: "switch-b", latency: 6 },
-      { id: "switch-a-router-a", from: "switch-a", to: "router-a", latency: 8 },
-      { id: "switch-a-router-b", from: "switch-a", to: "router-b", latency: 10 },
-      { id: "switch-b-router-b", from: "switch-b", to: "router-b", latency: 9 },
-      { id: "switch-b-router-c", from: "switch-b", to: "router-c", latency: 11 },
+      { id: "client-cdn-a", from: "client", to: "cdn-a", latency: 5 },
+      { id: "client-cdn-b", from: "client", to: "cdn-b", latency: 6 },
+      { id: "cdn-a-router-a", from: "cdn-a", to: "router-a", latency: 8 },
+      { id: "cdn-a-router-b", from: "cdn-a", to: "router-b", latency: 10 },
+      { id: "cdn-b-router-b", from: "cdn-b", to: "router-b", latency: 9 },
+      { id: "cdn-b-router-c", from: "cdn-b", to: "router-c", latency: 11 },
       { id: "router-a-server", from: "router-a", to: "server", latency: 10 },
       { id: "router-b-server", from: "router-b", to: "server", latency: 12 },
       { id: "router-c-server", from: "router-c", to: "server", latency: 13 },
@@ -120,32 +128,32 @@ export const levels: Level[] = [
   },
   {
     id: 5,
-    title: "The Backbone",
+    title: "The Global Backbone",
     source: "client",
     destination: "server",
     nodes: [
       { id: "client", type: "client", x: 5, y: 30 },
-      { id: "switch-a", type: "switch", x: 20, y: 12 },
-      { id: "switch-b", type: "switch", x: 20, y: 48 },
-      { id: "router-a", type: "router", x: 45, y: 5 },
-      { id: "router-b", type: "router", x: 45, y: 22 },
-      { id: "router-c", type: "router", x: 45, y: 38 },
-      { id: "router-d", type: "router", x: 45, y: 55 },
+      { id: "gw-a", type: "region-gateway", x: 20, y: 12 },
+      { id: "gw-b", type: "region-gateway", x: 20, y: 48 },
+      { id: "dc-a1", type: "datacenter", x: 45, y: 5 },
+      { id: "dc-a2", type: "datacenter", x: 45, y: 22 },
+      { id: "dc-b1", type: "datacenter", x: 45, y: 38 },
+      { id: "dc-b2", type: "datacenter", x: 45, y: 55 },
       { id: "server", type: "server", x: 92, y: 30 },
     ],
     edges: [
-      { id: "client-switch-a", from: "client", to: "switch-a", latency: 4 },
-      { id: "client-switch-b", from: "client", to: "switch-b", latency: 5 },
-      { id: "switch-a-router-a", from: "switch-a", to: "router-a", latency: 6 },
-      { id: "switch-a-router-b", from: "switch-a", to: "router-b", latency: 7 },
-      { id: "switch-b-router-b", from: "switch-b", to: "router-b", latency: 8 },
-      { id: "switch-b-router-c", from: "switch-b", to: "router-c", latency: 9 },
-      { id: "switch-b-router-d", from: "switch-b", to: "router-d", latency: 10 },
-      { id: "router-a-server", from: "router-a", to: "server", latency: 10 },
-      { id: "router-b-server", from: "router-b", to: "server", latency: 11 },
-      { id: "router-c-server", from: "router-c", to: "server", latency: 12 },
-      { id: "router-d-server", from: "router-d", to: "server", latency: 13 },
-      { id: "router-a-router-c", from: "router-a", to: "router-c", latency: 5 },
+      { id: "client-gw-a", from: "client", to: "gw-a", latency: 4 },
+      { id: "client-gw-b", from: "client", to: "gw-b", latency: 5 },
+      { id: "gw-a-dc-a1", from: "gw-a", to: "dc-a1", latency: 6 },
+      { id: "gw-a-dc-a2", from: "gw-a", to: "dc-a2", latency: 7 },
+      { id: "gw-b-dc-a2", from: "gw-b", to: "dc-a2", latency: 8 },
+      { id: "gw-b-dc-b1", from: "gw-b", to: "dc-b1", latency: 9 },
+      { id: "gw-b-dc-b2", from: "gw-b", to: "dc-b2", latency: 10 },
+      { id: "dc-a1-server", from: "dc-a1", to: "server", latency: 10 },
+      { id: "dc-a2-server", from: "dc-a2", to: "server", latency: 11 },
+      { id: "dc-b1-server", from: "dc-b1", to: "server", latency: 12 },
+      { id: "dc-b2-server", from: "dc-b2", to: "server", latency: 13 },
+      { id: "dc-a1-dc-b1", from: "dc-a1", to: "dc-b1", latency: 5 },
     ],
   },
 ];

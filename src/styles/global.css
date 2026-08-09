@@ -253,6 +253,22 @@ a {
   background: #2e9e4f;
 }
 
+.legend-device-load-balancer {
+  background: #d4a017;
+}
+
+.legend-device-cdn-edge {
+  background: #16a085;
+}
+
+.legend-device-region-gateway {
+  background: #34495e;
+}
+
+.legend-device-datacenter {
+  background: #8e44ad;
+}
+
 .dialog {
   border: none;
   border-radius: 0.5rem;
@@ -376,6 +392,22 @@ a {
 
 .node.device-server circle {
   fill: #2e9e4f;
+}
+
+.node.device-load-balancer circle {
+  fill: #d4a017;
+}
+
+.node.device-cdn-edge circle {
+  fill: #16a085;
+}
+
+.node.device-region-gateway circle {
+  fill: #34495e;
+}
+
+.node.device-datacenter circle {
+  fill: #8e44ad;
 }
 
 .packet {
