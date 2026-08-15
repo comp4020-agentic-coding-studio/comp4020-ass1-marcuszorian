@@ -41,9 +41,11 @@ const sections = levels.map((level, index) => {
         back to you, rather than just replaying the outbound path backwards — it just so happens
         that, in these diagrams, the cheapest way back is always the cheapest way out reversed. Real
         IP traffic isn't guaranteed that: each direction can be routed under different policies and
-        come home a different way. Either way, a slow page usually means that trip happened twice,
-        and distance is only one part of what makes it slow — routing, congestion and how long a
-        server takes to answer all add to it too.
+        come home a different way. A real page is rarely just one round trip, though — a browser
+        fires off many requests, often in parallel, some answered straight from a cache, with parts
+        of the response streaming in as they arrive. What makes any one of those requests slow is its
+        own travel time out and back plus how long the server takes to process it — and distance is
+        only one part of that travel time, alongside routing and congestion.
       </p>
       <p>
         Every level below is a network you can attack. <strong

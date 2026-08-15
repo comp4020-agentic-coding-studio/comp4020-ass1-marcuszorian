@@ -11,8 +11,7 @@ export const deviceHints: Record<NodeType, { title: string; description: string 
   },
   router: {
     title: "Router",
-    description:
-      "Forwards traffic toward its destination using a routing table, choosing among whichever links are still standing.",
+    description: "Forwards traffic toward its destination using routes in its routing table.",
   },
   server: {
     title: "Server",

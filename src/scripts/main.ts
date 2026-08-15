@@ -50,9 +50,9 @@ document.addEventListener("DOMContentLoaded", () => {
       if (trip) {
         const hops = trip.outbound.path.length - 1;
         statusEl.textContent =
-          `● Connected — ${hops} hop${hops === 1 ? "" : "s"}, ${trip.outbound.latency}ms each way ` +
-          `(${trip.outbound.latency + trip.inbound.latency}ms round trip, ` +
-          `${trip.survivingRoutes} surviving route${trip.survivingRoutes === 1 ? "" : "s"})`;
+          `● Connected — ${hops} hop${hops === 1 ? "" : "s"} · ${trip.outbound.latency}ms one-way · ` +
+          `${trip.outbound.latency + trip.inbound.latency}ms RTT · ` +
+          `${trip.survivingRoutes} surviving route${trip.survivingRoutes === 1 ? "" : "s"}`;
       } else {
         statusEl.textContent = "● Disconnected — no surviving route to any server";
       }

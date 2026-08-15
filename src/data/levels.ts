@@ -40,8 +40,9 @@ export const levels: Level[] = [
     title: "How the Internet Reroutes",
     description:
       "Every request starts at a client and ends at a server. In between, routers decide which link " +
-      "to send it down next. There is more than one way through, so breaking a link doesn't stop the " +
-      "traffic — it just sends it the long way round. Click any link to cut it and watch the route change.",
+      "to send it down next. In this simulated network there is more than one way through, so breaking " +
+      "a link doesn't stop the traffic — it just sends it the long way round. Click any link to cut it " +
+      "and watch the route change.",
     source: "you",
     destinations: ["server"],
     nodes: [
@@ -88,8 +89,9 @@ export const levels: Level[] = [
     description:
       "Many real services run on more than one machine, so that losing a single server doesn't take " +
       "everything down. A load balancer sits in front of several servers and spreads requests across " +
-      "them. Everything reaches the servers through it — cut one of its outgoing links, and a load " +
-      "balancer that's tracking server health can shift new requests to one it still has a path to.",
+      "them. In this network, everything reaches the servers through it — cut one of its outgoing " +
+      "links, and a load balancer that's tracking server health can shift new requests to one it still " +
+      "has a path to.",
     source: "client",
     destinations: ["server-a", "server-b"],
     nodes: [
@@ -115,10 +117,10 @@ export const levels: Level[] = [
     id: 4,
     title: "Regional Mesh",
     description:
-      "CDN edge nodes sit close to you and cache copies of content that doesn't change often — a " +
+      "CDN edge nodes sit close to you and cache copies of content according to caching rules — a " +
       "cache hit is answered right there and never travels further. Anything not cached still goes on " +
-      "to a server, through a mesh of routers reaching more than one place, so there's rarely a single " +
-      "link whose loss you'd even notice.",
+      "to a server, through a mesh of routers reaching more than one place: multiple paths can make " +
+      "the network more resilient to individual link failures.",
     source: "client",
     destinations: ["server-a", "server-b"],
     nodes: [
@@ -148,13 +150,13 @@ export const levels: Level[] = [
     id: 5,
     title: "Multi-Region Architecture",
     description:
-      "At global scale, a service can split itself into regions, each with its own gateway, " +
+      "At global scale, a service can split itself into regions that can each have their own gateway, " +
       "datacenters and servers, so a problem in one region doesn't have to reach the other. Real " +
       "multi-region systems usually still share some things across that boundary — a database, DNS, " +
       "a control plane — this diagram simplifies that away to show the failure-isolation idea on its " +
       "own. Whether losing a whole region is actually survivable comes down to how deliberately the " +
-      "system was built for it: the internet as a whole is designed to tolerate failures like this, " +
-      "but it isn't immune to major outages.",
+      "system was built for it: the Internet's distributed architecture can tolerate some failures " +
+      "like this, but it isn't immune to major outages.",
     source: "client",
     destinations: ["server-a", "server-b"],
     nodes: [
