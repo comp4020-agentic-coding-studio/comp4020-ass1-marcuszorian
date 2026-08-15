@@ -479,9 +479,17 @@ a {
   stroke-width: 3.2;
 }
 
-.node circle {
+.node-icon-shape {
+  fill: currentcolor;
   stroke: var(--color-surface);
   stroke-width: 0.6;
+}
+
+.node-icon-line {
+  fill: none;
+  stroke: currentcolor;
+  stroke-width: 0.9;
+  stroke-linecap: round;
 }
 
 .node text {
@@ -491,41 +499,41 @@ a {
   pointer-events: none;
 }
 
-.node:focus-visible circle {
+.node:focus-visible .node-icon-shape {
   outline: 2px solid var(--color-accent);
   outline-offset: 1px;
 }
 
-.node.device-client circle {
-  fill: #4a90d9;
+.node.device-client {
+  color: #4a90d9;
 }
 
-.node.device-switch circle {
-  fill: #9b59b6;
+.node.device-switch {
+  color: #9b59b6;
 }
 
-.node.device-router circle {
-  fill: #e67e22;
+.node.device-router {
+  color: #e67e22;
 }
 
-.node.device-server circle {
-  fill: #2e9e4f;
+.node.device-server {
+  color: #2e9e4f;
 }
 
-.node.device-load-balancer circle {
-  fill: #d4a017;
+.node.device-load-balancer {
+  color: #d4a017;
 }
 
-.node.device-cdn-edge circle {
-  fill: #16a085;
+.node.device-cdn-edge {
+  color: #16a085;
 }
 
-.node.device-region-gateway circle {
-  fill: #34495e;
+.node.device-region-gateway {
+  color: #34495e;
 }
 
-.node.device-datacenter circle {
-  fill: #8e44ad;
+.node.device-datacenter {
+  color: #8e44ad;
 }
 
 /*

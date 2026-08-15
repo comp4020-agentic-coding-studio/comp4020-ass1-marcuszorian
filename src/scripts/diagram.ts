@@ -1,4 +1,4 @@
-import type { Level, LevelNode } from "../data/levels";
+import type { Level, LevelNode, NodeType } from "../data/levels";
 import type { FocusTarget } from "../lib/focus";
 
 const NODE_RADIUS = 4;
@@ -44,6 +44,102 @@ function isTabbableNode(level: Level, nodeId: string, focus: FocusTarget | null)
     return focus.kind === "node" && focus.id === nodeId;
   }
   return level.nodes[0]?.id === nodeId;
+}
+
+function poly(points: [number, number][]): SVGPolygonElement {
+  const el = svgEl("polygon");
+  el.setAttribute("points", points.map(([x, y]) => `${x},${y}`).join(" "));
+  return el;
+}
+
+function rect(x: number, y: number, w: number, h: number, rx = 0): SVGRectElement {
+  const el = svgEl("rect");
+  el.setAttribute("x", String(x));
+  el.setAttribute("y", String(y));
+  el.setAttribute("width", String(w));
+  el.setAttribute("height", String(h));
+  if (rx) el.setAttribute("rx", String(rx));
+  return el;
+}
+
+function iconLine(x1: number, y1: number, x2: number, y2: number): SVGLineElement {
+  const el = svgEl("line");
+  el.setAttribute("x1", String(x1));
+  el.setAttribute("y1", String(y1));
+  el.setAttribute("x2", String(x2));
+  el.setAttribute("y2", String(y2));
+  return el;
+}
+
+/**
+ * A small vector glyph per device type rather than a bare circle, so the
+ * shape itself hints at the role (screen, rack, hub) alongside its colour.
+ * Everything is built from plain SVG primitives centred on (cx, cy) within
+ * roughly the same footprint the old r=4 circle had — no external assets, so
+ * nothing to license.
+ */
+function buildNodeIcon(type: NodeType, cx: number, cy: number): SVGElement[] {
+  switch (type) {
+    case "client":
+      return [
+        rect(cx - 3.5, cy - 3, 7, 4.6, 0.6),
+        rect(cx - 1, cy + 1.6, 2, 1),
+        rect(cx - 2.4, cy + 2.6, 4.8, 0.8, 0.4),
+      ];
+    case "router":
+      return [
+        rect(cx - 3.6, cy - 1.8, 7.2, 3.2, 0.9),
+        iconLine(cx - 1.6, cy - 1.8, cx - 2.8, cy - 3.4),
+        iconLine(cx + 1.6, cy - 1.8, cx + 2.8, cy - 3.4),
+      ];
+    case "switch":
+      return [
+        rect(cx - 3.6, cy - 1.6, 7.2, 2.6, 0.4),
+        ...[0, 1, 2, 3, 4].map((i) => rect(cx - 3 + i * 1.4, cy + 0.4, 0.7, 0.8)),
+      ];
+    case "server":
+      return [0, 1, 2].map((i) => rect(cx - 3.5, cy - 3.3 + i * 2.1, 7, 1.7, 0.3));
+    case "load-balancer":
+      return [
+        poly([
+          [cx, cy - 4],
+          [cx + 4, cy],
+          [cx, cy + 4],
+          [cx - 4, cy],
+        ]),
+        iconLine(cx, cy - 1.6, cx - 2, cy + 1.8),
+        iconLine(cx, cy - 1.6, cx + 2, cy + 1.8),
+      ];
+    case "cdn-edge":
+      return [
+        poly([
+          [cx - 2, cy - 3.6],
+          [cx + 2, cy - 3.6],
+          [cx + 4, cy],
+          [cx + 2, cy + 3.6],
+          [cx - 2, cy + 3.6],
+          [cx - 4, cy],
+        ]),
+      ];
+    case "region-gateway":
+      return [
+        poly([
+          [cx, cy - 4],
+          [cx + 4, cy - 1],
+          [cx + 2.6, cy + 4],
+          [cx - 2.6, cy + 4],
+          [cx - 4, cy - 1],
+        ]),
+      ];
+    case "datacenter":
+      return [
+        rect(cx - 3.6, cy - 3.6, 7.2, 7.2, 0.4),
+        rect(cx - 2.6, cy - 2.4, 1.8, 1.8),
+        rect(cx + 0.8, cy - 2.4, 1.8, 1.8),
+        rect(cx - 2.6, cy + 0.6, 1.8, 1.8),
+        rect(cx + 0.8, cy + 0.6, 1.8, 1.8),
+      ];
+  }
 }
 
 export function renderDiagram(
@@ -110,17 +206,17 @@ export function renderDiagram(
     group.setAttribute("role", "group");
     group.setAttribute("aria-label", `${node.type}: ${node.id}`);
 
-    const circle = svgEl("circle");
-    circle.setAttribute("cx", String(node.x));
-    circle.setAttribute("cy", String(node.y));
-    circle.setAttribute("r", String(NODE_RADIUS));
+    for (const shape of buildNodeIcon(node.type, node.x, node.y)) {
+      shape.setAttribute("class", shape.tagName === "line" ? "node-icon-line" : "node-icon-shape");
+      group.append(shape);
+    }
 
     const label = svgEl("text");
     label.setAttribute("x", String(node.x));
     label.setAttribute("y", String(node.y + NODE_RADIUS + 5));
     label.textContent = node.id;
 
-    group.append(circle, label);
+    group.append(label);
     svg.append(group);
   }
 
