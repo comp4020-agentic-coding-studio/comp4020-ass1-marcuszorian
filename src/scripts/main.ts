@@ -6,7 +6,7 @@ import type { FocusTarget } from "../lib/focus";
 import { renderDiagram } from "./diagram";
 import { applyCamera, initialCamera, panCamera, wireGestures, zoomCamera } from "./zoom";
 import { handleDiagramKeydown, focusSelectorFor } from "./keyboard";
-import { createLevelState, levelRoutes } from "./state";
+import { createLevelState, levelRoundTrip } from "./state";
 
 document.addEventListener("DOMContentLoaded", () => {
   const counterEl = document.querySelector<HTMLElement>("#level-counter")!;
@@ -43,24 +43,22 @@ document.addEventListener("DOMContentLoaded", () => {
     const isLastLevel = level.id === levels[levels.length - 1].id;
 
     function render(): void {
-      const found = levelRoutes(state);
-      const connected = found.length > 0;
+      const trip = levelRoundTrip(state);
 
-      renderDiagram(svg, level, state.broken, found[0]?.path ?? null, state.focus);
+      renderDiagram(svg, level, state.broken, trip?.outbound.path ?? null, state.focus);
 
-      if (connected) {
-        const cheapest = found[0];
-        const hops = cheapest.path.length - 1;
+      if (trip) {
+        const hops = trip.outbound.path.length - 1;
         statusEl.textContent =
-          `● Connected — ${hops} hop${hops === 1 ? "" : "s"}, ${cheapest.latency}ms each way ` +
-          `(${cheapest.latency * 2}ms round trip, ` +
-          `${found.length} surviving route${found.length === 1 ? "" : "s"})`;
+          `● Connected — ${hops} hop${hops === 1 ? "" : "s"}, ${trip.outbound.latency}ms each way ` +
+          `(${trip.outbound.latency + trip.inbound.latency}ms round trip, ` +
+          `${trip.survivingRoutes} surviving route${trip.survivingRoutes === 1 ? "" : "s"})`;
       } else {
         statusEl.textContent = "● Disconnected — no surviving route to any server";
       }
 
       // The way onward only appears once this level is actually broken.
-      banner.hidden = connected;
+      banner.hidden = trip !== null;
       bannerMessage.textContent = isLastLevel
         ? "Fully disconnected — you've broken the whole internet."
         : "Fully disconnected — nice work.";
@@ -74,7 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function applyToggle(linkId: string): void {
       state.broken = toggleLink(state.broken, linkId);
-      progress = recordBreak(progress, level.id, levelRoutes(state).length > 0);
+      progress = recordBreak(progress, level.id, levelRoundTrip(state) !== null);
       saveProgress(progress);
       updateChrome();
       render();

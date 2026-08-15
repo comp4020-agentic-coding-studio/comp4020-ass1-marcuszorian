@@ -61,9 +61,10 @@ export const levels: Level[] = [
     id: 2,
     title: "Bigger Office",
     description:
-      "Once a site has more than a couple of machines, something has to fan traffic out to them. " +
-      "A switch links everything on one site together and hands traffic off to whichever router " +
-      "still has a working path out.",
+      "Once a site has more than a couple of machines, something has to connect them together. A " +
+      "switch links everything on one site into a local network — it just forwards traffic to the " +
+      "right device or out toward a router; picking which working path leads out from there is the " +
+      "router's job, not the switch's.",
     source: "laptop",
     destinations: ["server"],
     nodes: [
@@ -85,9 +86,10 @@ export const levels: Level[] = [
     id: 3,
     title: "Small ISP",
     description:
-      "Real services don't run on one machine. A load balancer sits in front of several servers and " +
-      "spreads requests across them, so losing one server doesn't take the service down. Everything " +
-      "reaches the servers through it — cut one of its outgoing links and the other server absorbs the load.",
+      "Many real services run on more than one machine, so that losing a single server doesn't take " +
+      "everything down. A load balancer sits in front of several servers and spreads requests across " +
+      "them. Everything reaches the servers through it — cut one of its outgoing links, and a load " +
+      "balancer that's tracking server health can shift new requests to one it still has a path to.",
     source: "client",
     destinations: ["server-a", "server-b"],
     nodes: [
@@ -113,9 +115,10 @@ export const levels: Level[] = [
     id: 4,
     title: "Regional Mesh",
     description:
-      "CDN edge nodes sit close to you and hold cached copies of what you're asking for, so most " +
-      "requests never travel far. Behind them a mesh of routers reaches servers in more than one " +
-      "place, which means there is rarely a single link whose loss you'd even notice.",
+      "CDN edge nodes sit close to you and cache copies of content that doesn't change often — a " +
+      "cache hit is answered right there and never travels further. Anything not cached still goes on " +
+      "to a server, through a mesh of routers reaching more than one place, so there's rarely a single " +
+      "link whose loss you'd even notice.",
     source: "client",
     destinations: ["server-a", "server-b"],
     nodes: [
@@ -143,11 +146,15 @@ export const levels: Level[] = [
   },
   {
     id: 5,
-    title: "The Global Backbone",
+    title: "Multi-Region Architecture",
     description:
-      "At global scale a service runs in independent regions. Each region has its own gateway, its " +
-      "own datacenters and its own server, with nothing shared between them. Take out an entire " +
-      "region and the other one still answers — which is why \"the internet is down\" is almost never true.",
+      "At global scale, a service can split itself into regions, each with its own gateway, " +
+      "datacenters and servers, so a problem in one region doesn't have to reach the other. Real " +
+      "multi-region systems usually still share some things across that boundary — a database, DNS, " +
+      "a control plane — this diagram simplifies that away to show the failure-isolation idea on its " +
+      "own. Whether losing a whole region is actually survivable comes down to how deliberately the " +
+      "system was built for it: the internet as a whole is designed to tolerate failures like this, " +
+      "but it isn't immune to major outages.",
     source: "client",
     destinations: ["server-a", "server-b"],
     nodes: [

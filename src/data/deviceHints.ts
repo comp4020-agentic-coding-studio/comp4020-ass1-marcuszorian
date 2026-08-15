@@ -11,7 +11,8 @@ export const deviceHints: Record<NodeType, { title: string; description: string 
   },
   router: {
     title: "Router",
-    description: "Picks which link to send traffic down next, out of whichever paths are still standing.",
+    description:
+      "Forwards traffic toward its destination using a routing table, choosing among whichever links are still standing.",
   },
   server: {
     title: "Server",
@@ -23,7 +24,8 @@ export const deviceHints: Record<NodeType, { title: string; description: string 
   },
   "cdn-edge": {
     title: "CDN Edge",
-    description: "A point of presence close to the client that caches and forwards traffic toward origin servers.",
+    description:
+      "A point of presence close to the client. A cached copy is answered right here; anything else is forwarded on to an origin server.",
   },
   "region-gateway": {
     title: "Region Gateway",

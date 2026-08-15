@@ -31,25 +31,35 @@ const sections = levels.map((level, index) => {
   <main>
     <section id="intro" class="intro">
       <p class="intro-lead">
-        "The internet is down" is almost never true. It's built to survive damage: when a link
-        fails, traffic takes another way round, and you rarely notice.
+        The internet is designed to survive damage: when a link fails, traffic takes another way
+        round, and you often don't notice — though major outages do still happen.
       </p>
       <p>
         Nothing you ask for arrives in one direction only. Watch a diagram and you'll see the dark
         dot — your request — travel out to a server, and only once it lands does the hollow one set
-        off back: the answer, returning through the same devices over the same links. That's why a
-        page feels slow at twice the distance to the server, not once.
+        off back: the answer. The simulation works out that return trip on its own, from the server
+        back to you, rather than just replaying the outbound path backwards — it just so happens
+        that, in these diagrams, the cheapest way back is always the cheapest way out reversed. Real
+        IP traffic isn't guaranteed that: each direction can be routed under different policies and
+        come home a different way. Either way, a slow page usually means that trip happened twice,
+        and distance is only one part of what makes it slow — routing, congestion and how long a
+        server takes to answer all add to it too.
       </p>
       <p>
         Every level below is a network you can attack. <strong
           >Click any link to cut it</strong
-        > — the diagram reroutes live and the status line tells you what's still standing. Keyboard:
-        focus a diagram, use the arrow keys to move between devices and links, and Enter or Space to
-        cut. On a touchscreen you can pinch to zoom and drag with a thumb to move around.
+        > — the diagram reroutes live and the status line tells you what's still standing (the ms
+        next to each link is a simulated one-way delay, not a measurement of any real connection).
+        Keyboard: focus a diagram, use the arrow keys to move between devices and links, and Enter or
+        Space to cut. On a touchscreen you can pinch to zoom and drag with a thumb to move around.
       </p>
       <p>
         A level is complete once you've cut it off entirely — every route to every server gone.
         Levels get harder as the networks get more like the real thing.
+      </p>
+      <p>
+        These are simplified teaching models, not a literal map of how the internet works — real
+        networks carry far more redundancy and nuance than five diagrams can show.
       </p>
     </section>
 

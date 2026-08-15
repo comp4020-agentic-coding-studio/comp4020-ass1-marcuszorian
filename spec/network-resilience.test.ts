@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { routes, toggleLink } from "../src/lib/network";
+import { roundTrip, routes, toggleLink } from "../src/lib/network";
 
 // A1 spec: "the visitor does something that changes what they see — state
 // the core interaction plainly enough to write a test for it." Core
@@ -70,6 +70,29 @@ describe("routes", () => {
     const found = routes(mesh, "A", ["D"], new Set(["A-B"]));
     expect(found.map((r) => r.path)).toEqual([["A", "C", "B", "D"]]);
     expect(found[0].latency).toBe(26);
+  });
+});
+
+// A2 spec point: the return leg is computed from scratch, from the
+// destination back to source, rather than assumed to be the outbound path
+// reversed — but it uses the same lowest-cost rule the outbound leg does, so
+// with equal cost either way across every link, it converges on that path
+// in reverse.
+describe("roundTrip", () => {
+  it("retraces the outbound path when it's the only surviving route home", () => {
+    const trip = roundTrip(diamond, "A", ["D"], new Set(["A-B", "A-C"]));
+    expect(trip?.outbound.path).toEqual(["A", "D"]);
+    expect(trip?.inbound.path).toEqual(["D", "A"]);
+  });
+
+  it("takes the lowest-cost route home, which mirrors the outbound path when costs are symmetric", () => {
+    const trip = roundTrip(diamond, "A", ["D"], new Set());
+    expect(trip?.outbound.path).toEqual(["A", "D"]);
+    expect(trip?.inbound.path).toEqual(["D", "A"]);
+  });
+
+  it("is null once every path is broken", () => {
+    expect(roundTrip(diamond, "A", ["D"], new Set(["direct", "A-B", "A-C"]))).toBeNull();
   });
 });
 

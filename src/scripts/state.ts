@@ -1,5 +1,5 @@
 import type { Level } from "../data/levels";
-import { routes, type Route } from "../lib/network";
+import { roundTrip, type RoundTrip } from "../lib/network";
 import type { FocusTarget } from "../lib/focus";
 import { initialCamera, type Camera } from "./zoom";
 
@@ -24,6 +24,6 @@ export function createLevelState(level: Level): LevelState {
   };
 }
 
-export function levelRoutes(state: LevelState): Route[] {
-  return routes(state.level, state.level.source, state.level.destinations, state.broken);
+export function levelRoundTrip(state: LevelState): RoundTrip | null {
+  return roundTrip(state.level, state.level.source, state.level.destinations, state.broken);
 }

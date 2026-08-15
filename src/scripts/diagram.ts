@@ -132,9 +132,10 @@ export function renderDiagram(
         { el: appendPacket(svg, "packet-request"), waypoints: outbound, from: 0, to: 0.5 },
         // Nothing comes back until something has arrived, so the response only
         // sets off over the second half of the cycle — over the same links,
-        // through the same devices in reverse. A physical link carries traffic
-        // both ways; routing it any other way would invent a path the level
-        // doesn't have.
+        // through the same devices in reverse. The engine computes the return
+        // leg independently (network.ts's roundTrip()), but with equal cost
+        // either way across every link here, the lowest-cost way back is
+        // always this path reversed.
         {
           el: appendPacket(svg, "packet-response"),
           waypoints: [...outbound].reverse(),
