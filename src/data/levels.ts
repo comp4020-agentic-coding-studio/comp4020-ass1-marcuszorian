@@ -11,7 +11,7 @@ export type NodeType =
 export type LevelNode = {
   id: string;
   type: NodeType;
-  /** Position in a shared 0-100 x 0-60 viewBox space, hand-authored per level. */
+  /** Position in a shared 0-100 x 0-66 viewBox space, hand-authored per level. */
   x: number;
   y: number;
 };

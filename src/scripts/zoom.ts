@@ -5,7 +5,7 @@ export type Camera = {
   height: number;
 };
 
-const FULL: Camera = { x: 0, y: 0, width: 100, height: 60 };
+const FULL: Camera = { x: 0, y: 0, width: 100, height: 66 };
 const MIN_WIDTH = 30;
 const MAX_WIDTH = FULL.width;
 
