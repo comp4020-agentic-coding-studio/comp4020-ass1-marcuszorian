@@ -8,6 +8,31 @@
   --color-broken: #c0392b;
   --color-surface: #fff;
   --color-bg: #f4f5f7;
+  --color-card: #fff;
+  --color-card-border: #e4e6ea;
+  --font-mono: ui-monospace, "sf mono", menlo, consolas, monospace;
+  --accent-client: #4a90d9;
+  --accent-switch: #9b59b6;
+  --accent-cdn-edge: #16a085;
+  --accent-region-gateway: #34495e;
+  --accent-datacenter: #8e44ad;
+  --accent-client-text: #2871be;
+  --accent-switch-text: #9853b4;
+  --accent-cdn-edge-text: #117e69;
+  --accent-region-gateway-text: #34495e;
+  --accent-datacenter-text: #8e44ad;
+  --shadow-panel: 0 1px 2px rgb(0 0 0 / 6%), 0 8px 24px rgb(0 0 0 / 8%);
+  --shadow-header-scrolled: 0 2px 8px rgb(0 0 0 / 10%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link-visible,
+  .app-header,
+  .section-nav-link,
+  .diagram-panel {
+    transition: none !important;
+    animation: none !important;
+  }
 }
 
 * {
@@ -51,6 +76,14 @@ a {
   align-items: center;
   gap: 0.75rem;
   min-width: 0;
+}
+
+.header-glyph {
+  flex-shrink: 0;
+}
+
+.app-header.is-scrolled {
+  box-shadow: var(--shadow-header-scrolled);
 }
 
 .app-header h1 {
@@ -153,6 +186,7 @@ a {
 
 .section-nav-number {
   display: block;
+  font-family: var(--font-mono);
   font-size: 0.75rem;
   font-weight: 600;
   color: var(--color-muted);
@@ -161,6 +195,12 @@ a {
 .section-nav-link.is-complete .section-nav-title::after {
   content: " ✓";
   color: var(--color-active);
+}
+
+.section-nav-link.is-current {
+  font-weight: 700;
+  border-left: 3px solid var(--color-accent);
+  padding-left: calc(0.6rem - 3px);
 }
 
 .nav-scrim {
@@ -212,7 +252,8 @@ a {
 
 .intro-heading {
   margin: 1.5rem 0 0.5rem;
-  font-size: 1.05rem;
+  font-size: 1.15rem;
+  font-weight: 700;
 }
 
 .intro-list {
@@ -225,9 +266,13 @@ a {
 }
 
 .level-section {
-  padding-top: 2rem;
-  margin-bottom: 3rem;
-  border-top: 1px solid var(--color-border);
+  padding: 1.75rem 1.75rem 2rem;
+  margin-bottom: 2.5rem;
+  border: 1px solid var(--color-card-border);
+  border-left: 4px solid var(--level-accent, var(--color-border));
+  border-radius: 0.75rem;
+  background: var(--color-card);
+  box-shadow: var(--shadow-panel);
 
   /* Clears the sticky header, which is two lines tall on a phone. */
   scroll-margin-top: 5.5rem;
@@ -235,16 +280,19 @@ a {
 
 .level-title {
   margin: 0 0 0.5rem;
-  font-size: 1.5rem;
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 .level-number {
   display: block;
+  font-family: var(--font-mono);
   font-size: 0.8rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--color-muted);
+  color: var(--level-accent-text, var(--color-muted));
 }
 
 .level-description {
@@ -292,7 +340,10 @@ a {
   position: relative;
   border: 1px solid var(--color-border);
   border-radius: 0.5rem;
-  background: var(--color-surface);
+  background-color: var(--color-surface);
+  background-image: radial-gradient(var(--color-border) 1px, transparent 1px);
+  background-size: 16px 16px;
+  box-shadow: var(--shadow-panel);
   overflow: hidden;
 }
 
@@ -339,6 +390,8 @@ a {
 
 .status-bar {
   margin: 1rem 0;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
   font-weight: 600;
 }
 
@@ -406,6 +459,11 @@ a {
 
 .legend-packet-response {
   background: var(--color-surface);
+  border: 1px solid var(--color-ink);
+}
+
+.legend-packet-dropped {
+  background: var(--color-broken);
   border: 1px solid var(--color-ink);
 }
 
@@ -484,7 +542,22 @@ a {
   stroke-dasharray: 2 1.5;
 }
 
+@keyframes link-pulse {
+  from {
+    stroke-width: 2.4;
+  }
+
+  to {
+    stroke-width: 0.8;
+  }
+}
+
+.link.just-toggled .link-visible {
+  animation: link-pulse 0.35s ease-out;
+}
+
 .link-label {
+  font-family: var(--font-mono);
   font-size: 2.2px;
   text-anchor: middle;
   fill: var(--color-muted);
@@ -593,4 +666,10 @@ a {
 .packet-response {
   fill: var(--color-surface);
   stroke: var(--color-ink);
+}
+
+.packet.is-dropped {
+  fill: var(--color-broken);
+  stroke: var(--color-broken);
+  opacity: 0.85;
 }

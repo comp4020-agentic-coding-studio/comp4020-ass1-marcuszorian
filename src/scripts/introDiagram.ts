@@ -1,5 +1,4 @@
 import type { Level } from "../data/levels";
-import { routes } from "../lib/network";
 import { renderDiagram } from "./diagram";
 
 /**
@@ -38,9 +37,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const svg = document.querySelector<SVGSVGElement>("[data-intro-network]");
   if (!svg) return;
 
-  function show(broken: Set<string>): void {
-    const path = routes(teaserLevel, "you", ["destination"], broken)[0]?.path ?? null;
-    renderDiagram(svg!, teaserLevel, broken, path, null);
+  function show(broken: Set<string>, changedLinkId: string | null): void {
+    renderDiagram(svg!, teaserLevel, broken, null, changedLinkId);
     // Purely illustrative: nothing here responds to a click or a key, so
     // nothing in it should be able to catch keyboard focus either.
     for (const el of svg!.querySelectorAll<SVGElement>("[tabindex]")) {
@@ -51,14 +49,14 @@ document.addEventListener("DOMContentLoaded", () => {
   if (prefersReducedMotion()) {
     // A still frame of the rerouted state, the same moment the full diagrams
     // freeze on: no cycling, since toggling link states is itself motion.
-    show(new Set(["out-a"]));
+    show(new Set(["out-a"]), null);
     return;
   }
 
   let down = false;
-  show(new Set());
+  show(new Set(), null);
   setInterval(() => {
     down = !down;
-    show(down ? new Set(["out-a"]) : new Set());
+    show(down ? new Set(["out-a"]) : new Set(), "out-a");
   }, PHASE_MS);
 });

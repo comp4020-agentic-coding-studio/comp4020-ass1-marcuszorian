@@ -42,10 +42,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const state = createLevelState(level);
     const isLastLevel = level.id === levels[levels.length - 1].id;
 
-    function render(): void {
+    function render(changedLinkId: string | null = null): void {
       const trip = levelRoundTrip(state);
 
-      renderDiagram(svg, level, state.broken, trip?.outbound.path ?? null, state.focus);
+      renderDiagram(svg, level, state.broken, state.focus, changedLinkId);
 
       if (trip) {
         const hops = trip.outbound.path.length - 1;
@@ -75,7 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
       progress = recordBreak(progress, level.id, levelRoundTrip(state) !== null);
       saveProgress(progress);
       updateChrome();
-      render();
+      render(linkId);
       if (state.focus) {
         svg.querySelector<SVGElement>(focusSelectorFor(state.focus))?.focus();
       }
@@ -209,4 +209,45 @@ document.addEventListener("DOMContentLoaded", () => {
     wireLevel(level);
   }
   updateChrome();
+
+  const header = document.querySelector<HTMLElement>(".app-header")!;
+  window.addEventListener(
+    "scroll",
+    () => {
+      header.classList.toggle("is-scrolled", window.scrollY > 4);
+    },
+    { passive: true },
+  );
+
+  // Scrollspy: independent of updateChrome()'s is-complete toggling above —
+  // this just tracks which section is on screen, not level progress.
+  const navLinksBySection = new Map<string, HTMLElement>();
+  for (const link of sectionNav.querySelectorAll<HTMLElement>(
+    "[data-nav-section], [data-nav-level]",
+  )) {
+    const key = link.getAttribute("data-nav-section") ?? `level-${link.getAttribute("data-nav-level")}`;
+    navLinksBySection.set(key, link);
+  }
+  const observedSections = [
+    document.querySelector<HTMLElement>("#intro"),
+    ...levels.map((level) => document.querySelector<HTMLElement>(`[data-level-id="${level.id}"]`)),
+  ].filter((el): el is HTMLElement => el !== null);
+
+  const sectionObserver = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        for (const link of navLinksBySection.values()) {
+          link.classList.remove("is-current");
+        }
+        navLinksBySection.get(entry.target.id)?.classList.add("is-current");
+      }
+    },
+    // rootMargin only accepts px/%, not rem, despite the CSS-margin-like syntax —
+    // 88px mirrors the 5.5rem scroll-margin-top the sections already clear.
+    { rootMargin: "-88px 0px -70% 0px" },
+  );
+  for (const section of observedSections) {
+    sectionObserver.observe(section);
+  }
 });

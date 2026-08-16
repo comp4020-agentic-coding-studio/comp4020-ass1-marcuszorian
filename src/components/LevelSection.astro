@@ -8,9 +8,12 @@ type Props = {
   newDevices: NodeType[];
   /** Where the completion banner points next, or null on the last level. */
   next: { id: number; title: string } | null;
+  /** This level's wayfinding accent, as CSS `var(...)` expressions. */
+  accent: string;
+  accentText: string;
 };
 
-const { level, newDevices, next } = Astro.props;
+const { level, newDevices, next, accent, accentText } = Astro.props;
 const deviceTypes = [...new Set(level.nodes.map((node) => node.type))];
 ---
 
@@ -19,6 +22,7 @@ const deviceTypes = [...new Set(level.nodes.map((node) => node.type))];
   class="level-section"
   data-level-id={level.id}
   aria-labelledby={`level-${level.id}-title`}
+  style={`--level-accent: ${accent}; --level-accent-text: ${accentText};`}
 >
   <h2 id={`level-${level.id}-title`} class="level-title">
     <span class="level-number">Level {level.id}</span>
@@ -107,6 +111,9 @@ const deviceTypes = [...new Set(level.nodes.map((node) => node.type))];
         <li><span class="legend-swatch legend-packet-request"></span>Request, out to a server</li>
         <li>
           <span class="legend-swatch legend-packet-response"></span>Response, on its way back
+        </li>
+        <li>
+          <span class="legend-swatch legend-packet-dropped"></span>Dropped, resent from the client
         </li>
       </ul>
     </div>

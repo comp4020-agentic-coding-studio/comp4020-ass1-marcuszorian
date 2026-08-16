@@ -8,6 +8,20 @@ import { levels, type NodeType } from "../data/levels";
 // Each device type is introduced once, above the first level that uses it —
 // which is what the pop-up hints used to do, except now it stays on the page.
 const seen = new Set<NodeType>();
+
+// A wayfinding accent per level card — chosen for adjacent-card contrast, not
+// a restatement of "which device is new here" (that's the separate device
+// legend at the bottom of each card). Kept local to this page rather than on
+// the Level type, since that type is also imported by diagram.ts,
+// introDiagram.ts, state.ts and the network lib, which have no visual concerns.
+const LEVEL_ACCENTS: Record<number, { accent: string; text: string }> = {
+  1: { accent: "var(--accent-client)", text: "var(--accent-client-text)" },
+  2: { accent: "var(--accent-switch)", text: "var(--accent-switch-text)" },
+  3: { accent: "var(--accent-cdn-edge)", text: "var(--accent-cdn-edge-text)" },
+  4: { accent: "var(--accent-datacenter)", text: "var(--accent-datacenter-text)" },
+  5: { accent: "var(--accent-region-gateway)", text: "var(--accent-region-gateway-text)" },
+};
+
 const sections = levels.map((level, index) => {
   const newDevices = [...new Set(level.nodes.map((node) => node.type))].filter(
     (type) => !seen.has(type),
@@ -20,6 +34,8 @@ const sections = levels.map((level, index) => {
     level,
     newDevices,
     next: nextLevel ? { id: nextLevel.id, title: nextLevel.title } : null,
+    accent: LEVEL_ACCENTS[level.id]!.accent,
+    accentText: LEVEL_ACCENTS[level.id]!.text,
   };
 });
 ---

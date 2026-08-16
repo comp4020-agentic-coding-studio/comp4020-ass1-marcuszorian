@@ -1,15 +1,28 @@
 import type { Level, LevelNode, NodeType } from "../data/levels";
 import type { FocusTarget } from "../lib/focus";
+import { roundTrip, routes, type RoundTrip } from "../lib/network";
+import {
+  advance,
+  applyToggle,
+  phaseProgress,
+  spawnOutbound,
+  type PacketFlight,
+} from "./packetFlight";
 
 const NODE_RADIUS = 4;
 /** Per hop, in one direction — a full round trip is twice this per hop. */
 const HOP_DURATION_MS = 700;
+/** How long a dropped packet lingers before a fresh one leaves the client. */
+const RESPAWN_DELAY_MS = 600;
 
 /**
  * Keyed per diagram: every level on the page renders into its own <svg>, and a
  * shared handle would mean each render cancelled the other diagrams' packets.
  */
 const animationFrames = new WeakMap<SVGSVGElement, number>();
+/** Persists a packet's position/phase across renders, including full SVG
+ * rebuilds, so a toggle can react to where the packet actually is. */
+const flights = new WeakMap<SVGSVGElement, PacketFlight>();
 
 function nodePosition(level: Level, id: string): LevelNode {
   const node = level.nodes.find((n) => n.id === id);
@@ -146,8 +159,9 @@ export function renderDiagram(
   svg: SVGSVGElement,
   level: Level,
   broken: Set<string>,
-  cheapestPath: string[] | null,
   focus: FocusTarget | null,
+  /** The link just cut or repaired by a real toggle, so only that link pulses — not a focus-only re-render. */
+  changedLinkId: string | null = null,
 ): void {
   const pending = animationFrames.get(svg);
   if (pending !== undefined) {
@@ -169,7 +183,10 @@ export function renderDiagram(
     hit.setAttribute("y2", String(to.y));
 
     const group = svgEl("g");
-    group.setAttribute("class", `link ${isBroken ? "is-broken" : "is-active"}`);
+    group.setAttribute(
+      "class",
+      `link ${isBroken ? "is-broken" : "is-active"}${edge.id === changedLinkId ? " just-toggled" : ""}`,
+    );
     group.setAttribute("data-link-id", edge.id);
     group.setAttribute("tabindex", isTabbableLink(edge.id, focus) ? "0" : "-1");
     group.setAttribute("role", "button");
@@ -220,37 +237,31 @@ export function renderDiagram(
     svg.append(group);
   }
 
-  if (cheapestPath && cheapestPath.length > 1) {
-    const outbound = cheapestPath.map((id) => nodePosition(level, id));
-    animatePackets(
-      svg,
-      [
-        { el: appendPacket(svg, "packet-request"), waypoints: outbound, from: 0, to: 0.5 },
-        // Nothing comes back until something has arrived, so the response only
-        // sets off over the second half of the cycle — over the same links,
-        // through the same devices in reverse. The engine computes the return
-        // leg independently (network.ts's roundTrip()), but with equal cost
-        // either way across every link here, the lowest-cost way back is
-        // always this path reversed.
-        {
-          el: appendPacket(svg, "packet-response"),
-          waypoints: [...outbound].reverse(),
-          from: 0.5,
-          to: 1,
-        },
-      ],
-      2 * HOP_DURATION_MS * (outbound.length - 1),
+  const trip = roundTrip(level, level.source, level.destinations, broken);
+
+  let flight = flights.get(svg) ?? null;
+  if (flight && changedLinkId !== null && broken.has(changedLinkId)) {
+    flight = applyToggle(
+      level,
+      flight,
+      changedLinkId,
+      broken,
+      level.destinations,
+      performance.now(),
+      HOP_DURATION_MS,
     );
   }
-}
+  if (!flight && trip) {
+    flight = spawnOutbound(trip.outbound.path, performance.now());
+  }
 
-type Packet = {
-  el: SVGCircleElement;
-  waypoints: LevelNode[];
-  /** The slice of the round trip this packet is in flight for, as 0-1 fractions. */
-  from: number;
-  to: number;
-};
+  if (flight) {
+    flights.set(svg, flight);
+    animatePacket(svg, level, flight, broken, trip);
+  } else {
+    flights.delete(svg);
+  }
+}
 
 function appendPacket(svg: SVGSVGElement, modifier: string): SVGCircleElement {
   const packet = svgEl("circle");
@@ -260,45 +271,85 @@ function appendPacket(svg: SVGSVGElement, modifier: string): SVGCircleElement {
   return packet;
 }
 
-function placePacket(packet: Packet, progress: number): void {
-  const hops = packet.waypoints.length - 1;
+function placePacket(el: SVGCircleElement, waypoints: LevelNode[], progress: number): void {
+  const hops = waypoints.length - 1;
   const position = progress * hops;
   const hop = Math.min(Math.floor(position), hops - 1);
   const withinHop = position - hop;
-  const from = packet.waypoints[hop];
-  const to = packet.waypoints[hop + 1];
-  packet.el.setAttribute("cx", String(from.x + (to.x - from.x) * withinHop));
-  packet.el.setAttribute("cy", String(from.y + (to.y - from.y) * withinHop));
+  const from = waypoints[hop];
+  const to = waypoints[hop + 1];
+  el.setAttribute("cx", String(from.x + (to.x - from.x) * withinHop));
+  el.setAttribute("cy", String(from.y + (to.y - from.y) * withinHop));
 }
 
 function prefersReducedMotion(): boolean {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
-function animatePackets(svg: SVGSVGElement, packets: Packet[], duration: number): void {
+function flightClass(flight: PacketFlight): string {
+  const classes = ["packet", flight.phase === "outbound" ? "packet-request" : "packet-response"];
+  if (flight.dropped) {
+    classes.push("is-dropped");
+  }
+  return classes.join(" ");
+}
+
+function animatePacket(
+  svg: SVGSVGElement,
+  level: Level,
+  initialFlight: PacketFlight,
+  broken: Set<string>,
+  trip: RoundTrip | null,
+): void {
   if (prefersReducedMotion()) {
-    // A still frame of the same moment the animation makes: the request has
-    // just about landed, and the answer is already on its way back.
-    for (const packet of packets) {
-      placePacket(packet, packet.from === 0 ? 0.9 : 0.4);
+    // A still frame rather than a moving one: the request is most of the way
+    // to a server, wherever the current cheapest route actually goes.
+    if (!trip) {
+      return;
     }
+    const el = appendPacket(svg, "packet-request");
+    placePacket(
+      el,
+      trip.outbound.path.map((id) => nodePosition(level, id)),
+      0.5,
+    );
     return;
   }
 
-  let start: number | null = null;
+  const el = appendPacket(svg, flightClass(initialFlight));
+
+  function computeReturnLeg(reached: string): string[] | null {
+    return routes(level, reached, [level.source], broken)[0]?.path ?? null;
+  }
+
+  function freshOutboundPath(): string[] | null {
+    return roundTrip(level, level.source, level.destinations, broken)?.outbound.path ?? null;
+  }
 
   function tick(now: number) {
-    if (start === null) {
-      start = now;
+    const current = flights.get(svg);
+    if (!current) {
+      return;
     }
-    const cycle = ((now - start) % duration) / duration;
-    for (const packet of packets) {
-      const inFlight = cycle >= packet.from && cycle < packet.to;
-      packet.el.style.display = inFlight ? "" : "none";
-      if (inFlight) {
-        placePacket(packet, (cycle - packet.from) / (packet.to - packet.from));
-      }
+    const next = advance(current, now, HOP_DURATION_MS, RESPAWN_DELAY_MS, computeReturnLeg, freshOutboundPath);
+    if (!next) {
+      flights.delete(svg);
+      el.remove();
+      return;
     }
+    flights.set(svg, next);
+    el.setAttribute("class", flightClass(next));
+
+    const waypoints = next.path.map((id) => nodePosition(level, id));
+    const hops = waypoints.length - 1;
+    const progress = next.dropped
+      ? (next.dropped.hop + next.dropped.withinHop) / hops
+      : (() => {
+          const p = phaseProgress(next.path, next.phaseStart, now, HOP_DURATION_MS);
+          return p.done ? 1 : (p.hop + p.withinHop) / hops;
+        })();
+    placePacket(el, waypoints, progress);
+
     animationFrames.set(svg, requestAnimationFrame(tick));
   }
 
