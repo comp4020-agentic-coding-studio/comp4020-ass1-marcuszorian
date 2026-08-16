@@ -199,6 +199,14 @@ know whose repo it is. Spend the effort on the work.
   a bug found by exploring the running page rather than by a failing test,
   add a test that would have caught it, and verify the fix against the live
   browser output, not just the diff.
+- **A second, independent instance of the same lesson**: `phaseProgress()`'s
+  new packet-rerouting logic passed all 62 tests, but crashed every real level
+  on its first animation frame --- a `requestAnimationFrame` timestamp can land
+  marginally before a `performance.now()` captured moments earlier, and nothing
+  in the hand-written test fixtures happened to cover `now < phaseStart`.
+  Caught only by loading the page and watching it, same as the one-way-edge bug
+  above. The rule already stated here held up under a genuinely new bug shape,
+  not just the one it was written for.
 
 ## This file is yours
 
