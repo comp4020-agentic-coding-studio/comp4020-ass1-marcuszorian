@@ -210,6 +210,20 @@ a {
   font-weight: 600;
 }
 
+.intro-heading {
+  margin: 1.5rem 0 0.5rem;
+  font-size: 1.05rem;
+}
+
+.intro-list {
+  padding-left: 1.25rem;
+  margin: 0 0 1rem;
+}
+
+.intro-list li {
+  margin-bottom: 0.5rem;
+}
+
 .level-section {
   padding-top: 2rem;
   margin-bottom: 3rem;
@@ -287,6 +301,15 @@ a {
   width: 100%;
   height: min(50vh, 26rem);
   touch-action: none;
+}
+
+.intro-diagram {
+  margin: 1.25rem 0 1.75rem;
+}
+
+.intro-diagram .network {
+  height: min(30vh, 14rem);
+  pointer-events: none;
 }
 
 .zoom-controls {

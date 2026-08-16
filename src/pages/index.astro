@@ -32,33 +32,65 @@ const sections = levels.map((level, index) => {
     <section id="intro" class="intro">
       <p class="intro-lead">
         The internet doesn't survive because nothing breaks. It survives because things are allowed
-        to break — a link fails, and traffic takes another way round.
+        to break: a link fails, and traffic takes another way round.
       </p>
+
+      <div class="diagram-panel intro-diagram">
+        <svg
+          class="network"
+          data-intro-network
+          viewBox="0 0 100 66"
+          preserveAspectRatio="xMidYMid meet"
+          role="img"
+          aria-label="Sample network diagram: a client reaches a server through two possible paths. When the faster path breaks, traffic automatically reroutes through the other, then the path repairs and the cycle repeats."
+        ></svg>
+      </div>
+
+      <h2 class="intro-heading">How to play</h2>
+      <ul class="intro-list">
+        <li>
+          Every level below is a network you can attack.
+          <strong>Click any link to cut it.</strong> The diagram reroutes live and the status line
+          shows what's still standing.
+        </li>
+        <li>
+          <strong>Keyboard:</strong> focus a diagram, use the arrow keys to move between devices and
+          links, then press Enter or Space to cut.
+        </li>
+        <li><strong>Touchscreen:</strong> pinch to zoom, and drag with a thumb to move around.</li>
+        <li>
+          A level is complete once every route to every server is gone. Levels get harder as the
+          networks get closer to the real thing.
+        </li>
+      </ul>
+
+      <h2 class="intro-heading">Reading the diagram</h2>
+      <ul class="intro-list">
+        <li>
+          The dark dot is your request, travelling out. Only once it lands does the hollow dot set
+          off back: the answer, worked out as its own independent trip rather than the outbound path
+          played backwards. (In these diagrams the cheapest way back happens to be the cheapest way
+          out, reversed. Real IP traffic isn't guaranteed that.)
+        </li>
+        <li>The ms next to each link is a simulated one-way delay, not a measurement of any real connection.</li>
+        <li>
+          A real page load is rarely just one round trip. A browser fires off many requests in
+          parallel, and some are answered straight from a cache.
+        </li>
+      </ul>
+
+      <h2 class="intro-heading">What this is, and isn't</h2>
       <p>
-        Every level below is a network you can attack. <strong
-          >Click any link to cut it</strong
-        > — the diagram reroutes live and the status line tells you what's still standing. Keyboard:
-        focus a diagram, use the arrow keys to move between devices and links, and Enter or Space to
-        cut. On a touchscreen you can pinch to zoom and drag with a thumb to move around. A level is
-        complete once every route to every server is gone; levels get harder as the networks get more
-        like the real thing.
-      </p>
-      <p>
-        Watch closely and you'll see the dark dot — your request — travel out, and only once it
-        lands does the hollow dot set off back: the answer, worked out as its own independent trip
-        rather than the outbound path just played backwards (though in these diagrams the cheapest
-        way back does happen to be the cheapest way out, reversed — real IP traffic isn't guaranteed
-        that). The ms next to each link is a simulated one-way delay, not a measurement of any real
-        connection, and a real page is rarely just one such round trip — a browser fires off many
-        requests in parallel, some answered straight from a cache. These are simplified teaching
-        models, not a literal map of how the internet works: real networks carry far more redundancy
-        and nuance than five diagrams can show, and even a well-built one isn't immune to outages —
-        redundancy lowers the odds of a single point of failure, it doesn't guarantee uptime.
+        These are simplified teaching models, not a literal map of how the internet works. Real
+        networks carry far more redundancy and nuance than five diagrams can show. Even a
+        well-built one isn't immune to outages: redundancy lowers the odds of a single point of
+        failure, but it doesn't guarantee uptime.
       </p>
     </section>
 
     {sections.map((props) => <LevelSection {...props} />)}
   </main>
 
+  <script src="../scripts/introDiagram.ts"></script>
   <script src="../scripts/main.ts"></script>
 </Layout>

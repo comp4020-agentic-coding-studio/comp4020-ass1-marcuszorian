@@ -50,18 +50,18 @@ document.addEventListener("DOMContentLoaded", () => {
       if (trip) {
         const hops = trip.outbound.path.length - 1;
         statusEl.textContent =
-          `● Connected — ${hops} hop${hops === 1 ? "" : "s"} · ${trip.outbound.latency}ms one-way · ` +
+          `● Connected: ${hops} hop${hops === 1 ? "" : "s"} · ${trip.outbound.latency}ms one-way · ` +
           `${trip.outbound.latency + trip.inbound.latency}ms RTT · ` +
           `${trip.survivingRoutes} surviving route${trip.survivingRoutes === 1 ? "" : "s"}`;
       } else {
-        statusEl.textContent = "● Disconnected — no surviving route to any server";
+        statusEl.textContent = "● Disconnected: no surviving route to any server";
       }
 
       // The way onward only appears once this level is actually broken.
       banner.hidden = trip !== null;
       bannerMessage.textContent = isLastLevel
-        ? "Fully disconnected — you've broken the whole internet."
-        : "Fully disconnected — nice work.";
+        ? "Fully disconnected: you've broken the whole internet."
+        : "Fully disconnected: nice work.";
     }
 
     function setFocus(target: FocusTarget): void {

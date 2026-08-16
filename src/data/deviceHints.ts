@@ -3,7 +3,7 @@ import type { NodeType } from "./levels";
 export const deviceHints: Record<NodeType, { title: string; description: string }> = {
   client: {
     title: "Client",
-    description: "The device asking for something — a laptop, phone, or browser tab making a request.",
+    description: "The device asking for something: a laptop, phone, or browser tab making a request.",
   },
   switch: {
     title: "Switch",
@@ -15,7 +15,7 @@ export const deviceHints: Record<NodeType, { title: string; description: string 
   },
   server: {
     title: "Server",
-    description: "The destination — where the request actually gets answered.",
+    description: "The destination: where the request actually gets answered.",
   },
   "load-balancer": {
     title: "Load Balancer",
