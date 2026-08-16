@@ -3,7 +3,7 @@ import type { Level } from "../data/levels";
 
 function levelFocusGraph(level: Level) {
   return {
-    nodes: level.nodes.map((n) => n.id),
+    nodes: level.nodes.map((n) => ({ id: n.id, x: n.x, y: n.y })),
     edges: level.edges,
   };
 }
