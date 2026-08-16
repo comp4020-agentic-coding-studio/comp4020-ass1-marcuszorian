@@ -178,6 +178,28 @@ know whose repo it is. Spend the effort on the work.
   clicks and capturing screenshots at both marking viewports before trusting
   a checks-green build.
 
+## Things learned building "Can You Break the Internet?"
+
+- **Request and response paths must be treated as separate routing problems.**
+  Do not implement the response animation by reversing the request path.
+  `roundTrip()` must calculate the return leg independently from the
+  destination back to the client using the current topology. When changing
+  routing behaviour, check explicitly for assumptions of symmetry. If symmetry
+  is required for a particular teaching model, document that assumption
+  rather than encoding it implicitly.
+- **Check technical copy against what this simulation actually computes, not
+  against general networking knowledge.** "A router picks the fastest path,"
+  "a page load is one round trip," "here is the route" --- each of these is
+  only sometimes true of this codebase's model. State the simplification
+  explicitly (e.g. "in this diagram," "this simulated ms value") rather than
+  letting a general-networking sentence stand unqualified.
+- **A green test suite is not proof a behaviour is correct** --- it can share
+  the same wrong assumption as the code it tests, which is exactly what
+  happened with the one-way-edge routing bug fixed in `4aa5fed`. When you fix
+  a bug found by exploring the running page rather than by a failing test,
+  add a test that would have caught it, and verify the fix against the live
+  browser output, not just the diff.
+
 ## This file is yours
 
 This CLAUDE.md is a starting point, not a fixed rulebook. As you learn what your
