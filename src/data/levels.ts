@@ -120,9 +120,7 @@ export const levels: Level[] = [
       "CDN edge nodes sit close to you and cache copies of content according to caching rules: a " +
       "cache hit is answered right there and never travels further. Anything not cached still goes on " +
       "to a server, through a mesh of routers reaching more than one place, and multiple paths can " +
-      "make the network more resilient to individual link failures. This diagram shows you connected " +
-      "to both edge nodes at once so you can see either path fail; in practice DNS or anycast routing " +
-      "picks a single nearby edge for you rather than your device holding links to more than one.",
+      "make the network more resilient to individual link failures.",
     source: "client",
     destinations: ["server-a", "server-b"],
     nodes: [
@@ -158,9 +156,7 @@ export const levels: Level[] = [
       "DNS, or a control plane, but this diagram simplifies that away to show the failure-isolation " +
       "idea on its own. Whether losing a whole region is actually survivable comes down to how deliberately the " +
       "system was built for it: the Internet's distributed architecture can tolerate some failures " +
-      "like this, but it isn't immune to major outages. It also simplifies away how you'd reach a " +
-      "region gateway in the first place: here you're shown connected to both at once, but normally " +
-      "DNS or anycast routing sends you to one region gateway, not both.",
+      "like this, but it isn't immune to major outages.",
     source: "client",
     destinations: ["server-a", "server-b"],
     nodes: [

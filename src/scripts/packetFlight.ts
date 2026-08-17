@@ -85,6 +85,18 @@ export function reactToToggle(
   return { kind: "rerouted", path: [...path.slice(0, hop + 2), ...found[0].path.slice(1)] };
 }
 
+/**
+ * Which endpoint a toggle-triggered reroute should aim for: the servers while
+ * the packet is still outbound, or back to the client once it has turned into
+ * a response. Getting this wrong doesn't crash anything — `routes()` happily
+ * finds *a* path from wherever the packet is to whichever destination it's
+ * given — it just quietly sends a response packet toward a server instead of
+ * home, since a server is almost always reachable from any point of failure.
+ */
+export function toggleDestination(flight: PacketFlight, source: string, destinations: string[]): string[] {
+  return flight.phase === "outbound" ? destinations : [source];
+}
+
 export function applyToggle(
   graph: Graph,
   flight: PacketFlight,

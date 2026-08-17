@@ -6,6 +6,7 @@ import {
   applyToggle,
   phaseProgress,
   spawnOutbound,
+  toggleDestination,
   type PacketFlight,
 } from "./packetFlight";
 
@@ -170,6 +171,24 @@ export function renderDiagram(
   }
   svg.replaceChildren();
 
+  const trip = roundTrip(level, level.source, level.destinations, broken);
+
+  let flight = flights.get(svg) ?? null;
+  if (flight && changedLinkId !== null && broken.has(changedLinkId)) {
+    flight = applyToggle(
+      level,
+      flight,
+      changedLinkId,
+      broken,
+      toggleDestination(flight, level.source, level.destinations),
+      performance.now(),
+      HOP_DURATION_MS,
+    );
+  }
+  if (!flight && trip) {
+    flight = spawnOutbound(trip.outbound.path, performance.now());
+  }
+
   for (const edge of level.edges) {
     const from = nodePosition(level, edge.from);
     const to = nodePosition(level, edge.to);
@@ -235,24 +254,6 @@ export function renderDiagram(
 
     group.append(label);
     svg.append(group);
-  }
-
-  const trip = roundTrip(level, level.source, level.destinations, broken);
-
-  let flight = flights.get(svg) ?? null;
-  if (flight && changedLinkId !== null && broken.has(changedLinkId)) {
-    flight = applyToggle(
-      level,
-      flight,
-      changedLinkId,
-      broken,
-      level.destinations,
-      performance.now(),
-      HOP_DURATION_MS,
-    );
-  }
-  if (!flight && trip) {
-    flight = spawnOutbound(trip.outbound.path, performance.now());
   }
 
   if (flight) {

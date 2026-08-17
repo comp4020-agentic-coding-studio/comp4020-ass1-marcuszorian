@@ -5,6 +5,7 @@ import {
   phaseProgress,
   reactToToggle,
   spawnOutbound,
+  toggleDestination,
   type PacketFlight,
 } from "../src/scripts/packetFlight";
 
@@ -91,6 +92,45 @@ describe("applyToggle", () => {
     const midCross: PacketFlight = { ...flight, phaseStart: 1000 };
     const result = applyToggle(bypass, midCross, "A-B", new Set(["A-B"]), ["D"], 1350, 700);
     expect(result.dropped).toEqual({ hop: 0, withinHop: 0.5, since: 1350 });
+  });
+
+  // The bug this guards against: the caller in diagram.ts used to pass the
+  // level's server destinations to every toggle, outbound or not. A response
+  // packet cut off from the client would "reroute" toward a server instead —
+  // trivially reachable from almost anywhere, so it never dropped, it just
+  // silently reversed direction. toggleDestination is what the caller must use
+  // to pick the right target per phase; this exercises the response side
+  // end-to-end the same way the level 5 network can hit it.
+  it("reroutes a response toward the source, the long way round, rather than toward a destination", () => {
+    const response: PacketFlight = {
+      phase: "response",
+      path: ["D", "C", "B", "A"],
+      phaseStart: 1000,
+      dropped: null,
+    };
+    const result = applyToggle(
+      bypass,
+      response,
+      "B-C",
+      new Set(["B-C"]),
+      toggleDestination(response, "A", ["D"]),
+      1350,
+      700,
+    );
+    expect(result.path).toEqual(["D", "C", "D", "B", "A"]);
+    expect(result.dropped).toBeNull();
+  });
+});
+
+describe("toggleDestination", () => {
+  it("aims at the destinations while the packet is still outbound", () => {
+    const flight: PacketFlight = { phase: "outbound", path: ["A", "B"], phaseStart: 0, dropped: null };
+    expect(toggleDestination(flight, "A", ["D"])).toEqual(["D"]);
+  });
+
+  it("aims back at the source once the packet has become a response", () => {
+    const flight: PacketFlight = { phase: "response", path: ["D", "C"], phaseStart: 0, dropped: null };
+    expect(toggleDestination(flight, "A", ["D"])).toEqual(["A"]);
   });
 });
 
