@@ -47,15 +47,15 @@ export const levels: Level[] = [
     destinations: ["server"],
     nodes: [
       { id: "you", type: "client", x: 8, y: 30 },
-      { id: "router-a", type: "router", x: 45, y: 12 },
-      { id: "router-b", type: "router", x: 45, y: 48 },
+      { id: "router-a", type: "router", x: 38, y: 30 },
+      { id: "router-b", type: "router", x: 65, y: 52 },
       { id: "server", type: "server", x: 92, y: 30 },
     ],
     edges: [
       { id: "to-a", from: "you", to: "router-a", latency: 8 },
       { id: "a-server", from: "router-a", to: "server", latency: 12 },
-      { id: "to-b", from: "you", to: "router-b", latency: 35 },
-      { id: "b-server", from: "router-b", to: "server", latency: 45 },
+      { id: "a-b", from: "router-a", to: "router-b", latency: 10 },
+      { id: "b-server", from: "router-b", to: "server", latency: 30 },
     ],
   },
   {
@@ -120,7 +120,9 @@ export const levels: Level[] = [
       "CDN edge nodes sit close to you and cache copies of content according to caching rules: a " +
       "cache hit is answered right there and never travels further. Anything not cached still goes on " +
       "to a server, through a mesh of routers reaching more than one place, and multiple paths can " +
-      "make the network more resilient to individual link failures.",
+      "make the network more resilient to individual link failures. This diagram shows you connected " +
+      "to both edge nodes at once so you can see either path fail; in practice DNS or anycast routing " +
+      "picks a single nearby edge for you rather than your device holding links to more than one.",
     source: "client",
     destinations: ["server-a", "server-b"],
     nodes: [
@@ -156,7 +158,9 @@ export const levels: Level[] = [
       "DNS, or a control plane, but this diagram simplifies that away to show the failure-isolation " +
       "idea on its own. Whether losing a whole region is actually survivable comes down to how deliberately the " +
       "system was built for it: the Internet's distributed architecture can tolerate some failures " +
-      "like this, but it isn't immune to major outages.",
+      "like this, but it isn't immune to major outages. It also simplifies away how you'd reach a " +
+      "region gateway in the first place: here you're shown connected to both at once, but normally " +
+      "DNS or anycast routing sends you to one region gateway, not both.",
     source: "client",
     destinations: ["server-a", "server-b"],
     nodes: [
